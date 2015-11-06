@@ -29,16 +29,19 @@ import types
 from zope.interface import Interface, implements
 from zope.interface.interface import InterfaceClass
 
-from twisted.python.reflect import qual
-from twisted.spread import jelly
-from twisted.trial.unittest import SkipTest
+from unittest import SkipTest
 
-from feat.common import serialization, enum
-from feat.common.serialization import base, adapters
-from feat.interface.serialization import Capabilities, ISnapshotable
-from feat.interface.serialization import ISerializable
+from pragmalizator.common import serialization, enum
+from pragmalizator.common.serialization import base, adapters
+from pragmalizator.interface.serialization import Capabilities, ISnapshotable
+from pragmalizator.interface.serialization import ISerializable
 
 from . import common
+
+
+def qual(clazz):
+    """Return full import path of a class."""
+    return clazz.__module__ + '.' + clazz.__name__
 
 
 class DummyEnum(enum.Enum):
@@ -63,7 +66,7 @@ class SnapshotableDummy(object):
 
 
 @serialization.register
-class SerializableDummy(serialization.Serializable, jelly.Jellyable):
+class SerializableDummy(serialization.Serializable):
     '''Simple dummy class that implements various serialization scheme.'''
 
     def __init__(self):
@@ -79,19 +82,6 @@ class SerializableDummy(serialization.Serializable, jelly.Jellyable):
         self.set = set([1, 2, 3])
         self.dict = {1: 2, 3: 4}
         self.ref = None
-        pass
-
-    def getStateFor(self, jellyer):
-        return self.snapshot()
-
-    def unjellyFor(self, unjellyer, data):
-        # The way to handle circular references in spread
-        unjellyer.unjellyInto(self, "__dict__", data[1])
-        return self
-
-    def __setitem__(self, name, value):
-        # Needed by twisted spread to handle circular references
-        setattr(self, name, value)
 
     def __repr__(self):
         return "<%s: %s>" % (type(self).__name__, repr(self.__dict__))
@@ -111,38 +101,20 @@ class SerializableDummy(serialization.Serializable, jelly.Jellyable):
                     and self.dict == value.dict
                     and self.ref == value.ref))
 
-jelly.setUnjellyableForClass(qual(SerializableDummy),
-                             SerializableDummy)
-
 
 @serialization.register
-class NotReferenceableDummy(serialization.Serializable, jelly.Jellyable):
+class NotReferenceableDummy(serialization.Serializable):
 
     referenceable = False
 
     def __init__(self, value=42):
         self.value = value
 
-    def getStateFor(self, jellyer):
-        return self.snapshot()
-
-    def unjellyFor(self, unjellyer, data):
-        # The way to handle circular references in spread
-        unjellyer.unjellyInto(self, "__dict__", data[1])
-        return self
-
-    def __setitem__(self, name, value):
-        # Needed by twisted spread to handle circular references
-        setattr(self, name, value)
-
     def __repr__(self):
         return "<%s: %s>" % (type(self).__name__, repr(self.__dict__))
 
     def __eq__(self, value):
         return (value is self or (self.value == value.value))
-
-jelly.setUnjellyableForClass(qual(NotReferenceableDummy),
-                             NotReferenceableDummy)
 
 
 class TestTypeSerializationDummy(object):

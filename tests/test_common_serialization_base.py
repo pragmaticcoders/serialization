@@ -23,11 +23,9 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from twisted.spread import jelly
-
-from feat.common import serialization
-from feat.common.serialization import base
-from feat.interface.serialization import *
+from pragmalizator.common import serialization
+from pragmalizator.common.serialization import base
+from pragmalizator.interface.serialization import *
 
 from . import common
 
@@ -81,7 +79,7 @@ class E(D):
         return D.snapshot(self), self.v
 
 
-class ListSerializableDummy(serialization.Serializable, jelly.Jellyable):
+class ListSerializableDummy(serialization.Serializable):
 
     def __init__(self, values):
         self.values = list(values)
@@ -91,9 +89,6 @@ class ListSerializableDummy(serialization.Serializable, jelly.Jellyable):
 
     def snapshot(self):
         return list(self.values)
-
-    def getStateFor(self, jellyer):
-        return self.snapshot()
 
     def __eq__(self, value):
         return self.values == value.values

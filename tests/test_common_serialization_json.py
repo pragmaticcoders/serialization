@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # Headers in this file shall remain intact.
 # -*- coding: utf-8 -*-
 # -*- Mode: Python -*-
@@ -22,20 +24,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # See "LICENSE.GPL" in the source distribution for more information.
-
 import itertools
 import types
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from feat.common import reflect, serialization, formatable
-from feat.common.serialization import base, json
-from feat.interface.serialization import *
-from feat.test import common
-
+from pragmalizator.common import reflect, serialization, formatable
+from pragmalizator.common.serialization import base, json
+from pragmalizator.interface.serialization import *
 
 from . import common_serialization
+from . import common
 
 
 @serialization.register
@@ -93,10 +93,10 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         yield (type, [datetime],
                str, ['[".type", "datetime.datetime"]'], False)
         yield (type, [common_serialization.SerializableDummy],
-               str, ['[".type", "feat.test.common_serialization.'
+               str, ['[".type", "pragmalizator.test.common_serialization.'
                      'SerializableDummy"]'], False)
         yield (InterfaceClass, [DummyInterface],
-               str, ['[".type", "feat.test.test_common_serialization_json.'
+               str, ['[".type", "pragmalizator.test.test_common_serialization_json.'
                      'DummyInterface"]'], False)
 
         ### Enums ###
@@ -104,10 +104,10 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         DummyEnum = common_serialization.DummyEnum
 
         yield (DummyEnum, [DummyEnum.a],
-               str, ['[".enum", "feat.test.common_serialization.'
+               str, ['[".enum", "pragmalizator.test.common_serialization.'
                      'DummyEnum.a"]'], False)
         yield (DummyEnum, [DummyEnum.c],
-               str, ['[".enum", "feat.test.common_serialization.'
+               str, ['[".enum", "pragmalizator.test.common_serialization.'
                      'DummyEnum.c"]'], False)
 
         ### External References ###
@@ -128,7 +128,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         ### Freezing-Only Types ###
 
         if freezing:
-            mod_name = "feat.test.test_common_serialization_json"
+            mod_name = "pragmalizator.test.test_common_serialization_json"
             fun_name = '"%s.dummy_function"' % mod_name
             meth_name = '"%s.DummyClass.dummy_method"' % mod_name
 

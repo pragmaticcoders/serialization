@@ -23,12 +23,10 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from twisted.python import failure
+from pragmalizator.common import serialization, adapter
+from pragmalizator.common.serialization import base, sexp, adapters
 
-from feat.common import serialization, adapter, defer
-from feat.common.serialization import base, sexp, adapters
-
-from feat.interface.serialization import *
+from pragmalizator.interface.serialization import *
 
 from . import common
 
@@ -91,33 +89,3 @@ class TestAdapters(common.TestCase):
                 '".type": "exception"}')
         ex = self.unserializer.convert(a)
         str(ex) # this line was causing seg fault before the fix
-
-    def testFailures(self):
-        # Create a true failure
-        try:
-            1 + ""
-        except TypeError, e:
-            value1 = failure.Failure(e)
-
-        result1a = self.pingpong(value1)
-        self.assertTrue(issubclass(type(result1a), failure.Failure))
-        self.assertEqual(result1a, value1)
-        result1b = self.pingpong(result1a)
-        self.assertTrue(isinstance(result1b, failure.Failure))
-        self.assertEqual(result1b, value1)
-        self.assertEqual(result1b, result1a)
-        self.assertEqual(type(result1b), type(result1a))
-        self.assertEqual(type(result1a).__bases__[0], failure.Failure)
-        self.assertEqual(type(result1b).__bases__[0], failure.Failure)
-
-    def testTrapingFailureAdapter(self):
-        f = failure.Failure(SomeException("not trapped"))
-        adapter = ISerializable(f)
-        self.assertIsInstance(adapter, adapters.FailureAdapter)
-
-        d = defer.Deferred()
-        d.addErrback(adapters.FailureAdapter.trap, OtherException)
-
-        d.errback(adapter)
-        self.assertFailure(d, SomeException)
-        return d

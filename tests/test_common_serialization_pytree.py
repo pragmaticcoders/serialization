@@ -28,9 +28,9 @@ import types
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from feat.common import serialization, reflect
-from feat.common.serialization import pytree, base
-from feat.interface.serialization import *
+from pragmalizator.common import serialization, reflect
+from pragmalizator.common.serialization import pytree, base
+from pragmalizator.interface.serialization import *
 
 from . import common, common_serialization
 
@@ -555,7 +555,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         ### Freezing-Only Types ###
 
         if freezing:
-            mod_name = "feat.test.test_common_serialization_pytree"
+            mod_name = "pragmalizator.test.test_common_serialization_pytree"
             fun_name = mod_name + ".dummy_function"
             meth_name = mod_name + ".DummyClass.dummy_method"
 

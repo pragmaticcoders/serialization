@@ -25,80 +25,63 @@ import sys
 import uuid
 
 from zope.interface import implements
-from twisted.internet import reactor
-from twisted.python import failure
-from twisted.trial import unittest, util
-from twisted.scripts import trial
+from pragmalizator.common import log, decorator
 
-from feat.database import emu as database
-from feat.agencies import agency, journaler, message, recipient
-from feat.agencies.messaging import emu, rabbitmq
-from feat.agents.base import agent
-from feat.common import log, defer, decorator, journal, time, signal
+from pragmalizator.interface.generic import ITimeProvider
+import unittest
+# from . import factories
 
-from feat.interface.generic import ITimeProvider
-from feat.agencies.messaging.interface import ISink
-from feat.agents.application import feat
+_getConfig = dict
+
+# log.init('test.log')
 
 
-from . import factories
-from twisted.trial.unittest import FailTest
-
-try:
-    _getConfig = trial.getConfig
-except AttributeError:
-    # trial.getConfig() is only available when using flumotion-trial
-    _getConfig = dict
-
-log.init('test.log')
+# def delay(value, delay):
+#     '''Returns a deferred whose callback will be triggered
+#     after the specified delay with the specified value.'''
+#     d = defer.Deferred()
+#     time.callLater(delay, d.callback, value)
+#     return d
 
 
-def delay(value, delay):
-    '''Returns a deferred whose callback will be triggered
-    after the specified delay with the specified value.'''
-    d = defer.Deferred()
-    time.callLater(delay, d.callback, value)
-    return d
+# def break_chain(value):
+#     '''Breaks a deferred callback chain ensuring the rest will be called
+#     asynchronously in the next reactor loop.'''
+#     return delay_callback(value, 0)
 
 
-def break_chain(value):
-    '''Breaks a deferred callback chain ensuring the rest will be called
-    asynchronously in the next reactor loop.'''
-    return delay_callback(value, 0)
+# def delay_errback(failure, delay):
+#     '''Returns a deferred whose errback will be triggered
+#     after the specified delay with the specified value.'''
+#     d = defer.Deferred()
+#     time.callLater(delay, d.errback, failure)
+#     return d
 
 
-def delay_errback(failure, delay):
-    '''Returns a deferred whose errback will be triggered
-    after the specified delay with the specified value.'''
-    d = defer.Deferred()
-    time.callLater(delay, d.errback, failure)
-    return d
+# def break_errback_chain(failure):
+#     '''Breaks a deferred errback chain ensuring the rest will be called
+#     asynchronously in the next reactor loop.'''
+#     return delay_errback(failure, 0)
 
 
-def break_errback_chain(failure):
-    '''Breaks a deferred errback chain ensuring the rest will be called
-    asynchronously in the next reactor loop.'''
-    return delay_errback(failure, 0)
+# delay_callback = delay
+# break_callback_chain = break_chain
 
 
-delay_callback = delay
-break_callback_chain = break_chain
+# def attr(*args, **kwargs):
+#     """Decorator that adds attributes to objects.
 
+#     It can be used to set the 'slow', 'skip', or 'todo' flags in test cases.
+#     """
 
-def attr(*args, **kwargs):
-    """Decorator that adds attributes to objects.
-
-    It can be used to set the 'slow', 'skip', or 'todo' flags in test cases.
-    """
-
-    def wrap(func):
-        for name in args:
-            # these are just True flags:
-            setattr(func, name, True)
-        for name, value in kwargs.items():
-            setattr(func, name, value)
-        return func
-    return wrap
+#     def wrap(func):
+#         for name in args:
+#             # these are just True flags:
+#             setattr(func, name, True)
+#         for name, value in kwargs.items():
+#             setattr(func, name, value)
+#         return func
+#     return wrap
 
 
 class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
@@ -189,19 +172,6 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
 
     def is_agency_idle(self, agency):
         return all([agent.is_idle() for agent in agency.get_agents()])
-
-    @defer.inlineCallbacks
-    def wait_agency_for_idle(self, agency, timeout, freq=0.5):
-        try:
-            check = lambda: self.is_agency_idle(agency)
-            yield self.wait_for(check, timeout, freq)
-        except unittest.FailTest:
-            for agent in agency.get_agents():
-                activity = agent.show_activity()
-                if activity is None:
-                    continue
-                self.info(activity)
-            raise
 
     def cb_after(self, arg, obj, method):
         '''
@@ -315,82 +285,6 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
         self.assertFailure(d, exception_class)
         return d
 
-    @defer.inlineCallbacks
-    def asyncEqual(self, expected, async_value):
-        self.assertTrue(isinstance(async_value, defer.Deferred))
-        value = yield async_value
-        self.assertEqual(value, expected)
-
-    @defer.inlineCallbacks
-    def asyncIterEqual(self, expected, async_iter):
-        self.assertTrue(isinstance(async_iter, defer.Deferred))
-        iterator = yield async_iter
-        self.assertTrue(isinstance(iterator, collections.Iterable))
-        self.assertEqual(list(iterator), expected)
-
-    @defer.inlineCallbacks
-    def asyncErrback(self, error_class, fun, *args, **kwargs):
-        result = fun(*args, **kwargs)
-        self.assertTrue(isinstance(result, defer.Deferred))
-        try:
-            res = yield result
-            self.fail("Expecting asynchronous error %s "
-                      "and got result: %r" % (error_class.__name__, res))
-        except Exception, e:
-            if isinstance(e, FailTest):
-                raise
-            self.assertTrue(isinstance(e, error_class),
-                            "Expecting asynchronous error %s "
-                            "and got %s" % (error_class.__name__,
-                                            type(e).__name__))
-
-    def assertAsyncFailure(self, chain, errorKlasses, value, *args, **kwargs):
-        '''Adds an asynchronous assertion for failure to the specified chain.
-
-        If the chain is None, a new fired one will be created.
-
-        The checks are serialized and done in order of declaration.
-
-        If the value is a Deferred, the check wait for its result,
-        if not it compare rightaway.
-
-        If value is a callable, it is called with specified arguments
-        and keyword WHEN THE PREVIOUS CALL HAS BEEN DONE.
-
-        Used like this::
-
-          d = defer.succeed(None)
-          d = self.assertAsyncFailure(d, ERROR_CLASSES, FIRED_DEFERRED)
-          d = self.assertAsyncFailure(d, ERROR_CLASSES, FUNCTION, ARG)
-          d = self.assertAsyncFailure(d, [ValueError, TypeError], fun(21))
-          d = self.assertAsyncFailure(d, [ValueError], fun, 21)
-          return d
-
-        '''
-
-        def check(failure):
-            if isinstance(errorKlasses, collections.Sequence):
-                self.assertTrue(failure.check(*errorKlasses))
-            else:
-                self.assertTrue(failure.check(errorKlasses))
-            return None # Resolve the error
-
-        if chain is None:
-            chain = defer.succeed(None)
-
-        return chain.addBoth(self._assertAsync, check, value, *args, **kwargs)
-
-    def assertAsyncRaises(self, chain, ErrorClass, fun, *args, **kwargs):
-
-        def check(param):
-            self.assertRaises(ErrorClass, fun, *args, **kwargs)
-            return None # Resolve the error
-
-        if chain is None:
-            chain = defer.succeed(None)
-
-        return chain.addBoth(check)
-
     def stub_method(self, obj, method, handler):
         handler = functools.partial(handler, obj)
         obj.__setattr__(method, handler)
@@ -422,259 +316,259 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
         return check(value)
 
 
-class Mock(object):
+# class Mock(object):
 
-    def __init__(self):
-        self._called = []
+#     def __init__(self):
+#         self._called = []
 
-    def find_calls(self, name):
-        return filter(lambda x: x.name == name, self._called)
+#     def find_calls(self, name):
+#         return filter(lambda x: x.name == name, self._called)
 
-    @staticmethod
-    @decorator.simple_function
-    def stub(method):
+#     @staticmethod
+#     @decorator.simple_function
+#     def stub(method):
 
-        def decorated(self, *args, **kwargs):
-            call = MockCall(method.__name__, args, kwargs)
-            self._called.append(call)
+#         def decorated(self, *args, **kwargs):
+#             call = MockCall(method.__name__, args, kwargs)
+#             self._called.append(call)
 
-        return decorated
+#         return decorated
 
-    @staticmethod
-    @decorator.simple_function
-    def record(method):
+#     @staticmethod
+#     @decorator.simple_function
+#     def record(method):
 
-        def decorated(self, *args, **kwargs):
-            call = MockCall(method.__name__, args, kwargs)
-            self._called.append(call)
-            return method(self, *args, **kwargs)
+#         def decorated(self, *args, **kwargs):
+#             call = MockCall(method.__name__, args, kwargs)
+#             self._called.append(call)
+#             return method(self, *args, **kwargs)
 
-        return decorated
-
-
-class MockCall(object):
-
-    def __init__(self, name, args, kwargs):
-        self.name = name
-        self.args = args
-        self.kwargs = kwargs
+#         return decorated
 
 
-class AgencyTestHelper(object):
+# class MockCall(object):
 
-    protocol_type = None
-    protocol_id = None
-    remote_id = None
-
-    def setUp(self):
-        self.agency = agency.Agency()
-        self.guid = None
-        self._messaging = emu.RabbitMQ()
-        mesg = rabbitmq.Client(self._messaging, 'agency_queue')
-        self._db = database.Database()
-        writer = journaler.SqliteWriter(self)
-        journal = journaler.Journaler()
-        journal.configure_with(writer)
-
-        d = writer.initiate()
-        d.addCallback(defer.drop_param, self.agency.initiate,
-                      self._db, journal, mesg)
-        return d
-
-    def setup_endpoint(self):
-        '''
-        Sets up the destination for tested component to send messages to.
-
-        This returns:
-         - endpoint: Recipient instance pointing to the queue above
-                     (use it for reply-to fields)
-         - queue: Queue instance we use may call .get() on to get
-                  messages from components being tested
-
-        @returns: tuple of endpoint, queue
-        '''
-        endpoint = recipient.Agent(str(uuid.uuid1()), 'lobby')
-        messaging = self._messaging
-
-        queue = messaging.define_queue(endpoint.key)
-        messaging.define_exchange(endpoint.route, 'direct')
-        messaging.create_binding(
-            endpoint.route, endpoint.key, endpoint.key)
-        return endpoint, queue
-
-    def assert_queue_empty(self, queue, timeout=10):
-        d = queue.get()
-        d2 = delay(None, timeout)
-        d2.addCallback(lambda _: self.assertFalse(d.called))
-        d2.addCallback(d.callback)
-        return d2
-
-    # methods for handling documents
-
-    def doc_factory(self, doc_class, **options):
-        '''
-        Builds document of given class and saves it to the database.
-
-        @returns: Document with id and revision set
-        @rtype:   subclass of feat.agents.document.Document
-        '''
-        document = factories.build(doc_class.type_name, **options)
-        return self.agency._database.get_connection().save_document(document)
-
-    # methods for sending and receiving custom messages
-
-    def send_announce(self, manager):
-        msg = message.Announcement()
-        manager._get_medium().announce(msg)
-        return manager
-
-    def send_bid(self, contractor, bid=1):
-        msg = message.Bid()
-        msg.bids = [bid]
-        contractor._get_medium().bid(msg)
-        return contractor
-
-    def send_refusal(self, contractor):
-        msg = message.Refusal()
-        contractor._get_medium().refuse(msg)
-        return contractor
-
-    def send_final_report(self, contractor):
-        msg = message.FinalReport()
-        contractor._get_medium().complete(msg)
-        return contractor
-
-    def send_cancel(self, contractor, reason=""):
-        msg = message.Cancellation()
-        msg.reason = reason
-        contractor._get_medium().defect(msg)
-        return contractor
-
-    def recv_announce(self, expiration_time=None, traversal_id=None):
-        msg = message.Announcement()
-        self.guid = str(uuid.uuid1())
-        msg.sender_id = self.guid
-        msg.traversal_id = traversal_id or str(uuid.uuid1())
-
-        return self.recv_msg(msg, expiration_time=expiration_time,
-                             public=True)
-
-    def recv_grant(self, _, update_report=None):
-        msg = message.Grant()
-        msg.update_report = update_report
-        msg.sender_id = self.guid
-        return self.recv_msg(msg).addCallback(lambda ret: _)
-
-    def recv_rejection(self, _):
-        msg = message.Rejection()
-        msg.sender_id = self.guid
-        return self.recv_msg(msg).addCallback(lambda ret: _)
-
-    def recv_cancel(self, _, reason=""):
-        msg = message.Cancellation()
-        msg.reason = reason
-        msg.sender_id = self.guid
-        return self.recv_msg(msg).addCallback(lambda ret: _)
-
-    def recv_ack(self, _):
-        msg = message.Acknowledgement()
-        msg.sender_id = self.guid
-        return self.recv_msg(msg).addCallback(lambda ret: _)
-
-    def recv_notification(self, result=None, traversal_id=None):
-        msg = message.Notification()
-        msg.traversal_id = traversal_id or str(uuid.uuid1())
-        d = self.recv_msg(msg, key="dummy-notification")
-        d.addCallback(defer.override_result, result)
-        return d
-
-    def recv_msg(self, msg, reply_to=None, key=None,
-                  expiration_time=None, public=False):
-        d = self.cb_after(arg=None, obj=self.agent._messaging,
-                          method='on_message')
-
-        msg.reply_to = reply_to or self.endpoint
-        msg.expiration_time = expiration_time or (time.future(10))
-        msg.protocol_type = self.protocol_type
-        msg.protocol_id = self.protocol_id
-        msg.message_id = str(uuid.uuid1())
-        msg.receiver_id = self.remote_id
-
-        key = 'dummy-contract' if public else self.agent._descriptor.doc_id
-        shard = self.agent._descriptor.shard
-        factory = recipient.Broadcast if public else recipient.Agent
-        msg.recipient = factory(key, shard)
-        self.agency._messaging.dispatch(msg)
-        return d
-
-    def reply(self, msg, reply_to, original_msg):
-        d = self.cb_after(arg=None, obj=self.agent._messaging,
-                          method='on_message')
-
-        dest = recipient.IRecipient(original_msg)
-
-        msg.reply_to = recipient.IRecipient(reply_to)
-        msg.message_id = str(uuid.uuid1())
-        msg.protocol_id = original_msg.protocol_id
-        msg.expiration_time = time.future(10)
-        msg.protocol_type = original_msg.protocol_type
-        msg.receiver_id = original_msg.sender_id
-
-        msg.recipient = dest
-        self.agency._messaging.dispatch(msg)
-        return d
+#     def __init__(self, name, args, kwargs):
+#         self.name = name
+#         self.args = args
+#         self.kwargs = kwargs
 
 
-class StubAgent(object):
+# class AgencyTestHelper(object):
 
-    implements(ISink)
+#     protocol_type = None
+#     protocol_id = None
+#     remote_id = None
 
-    def __init__(self):
-        self.queue_name = str(uuid.uuid1())
-        self.messages = []
+#     def setUp(self):
+#         self.agency = agency.Agency()
+#         self.guid = None
+#         self._messaging = emu.RabbitMQ()
+#         mesg = rabbitmq.Client(self._messaging, 'agency_queue')
+#         self._db = database.Database()
+#         writer = journaler.SqliteWriter(self)
+#         journal = journaler.Journaler()
+#         journal.configure_with(writer)
 
-    ### IChannelSink ###
+#         d = writer.initiate()
+#         d.addCallback(defer.drop_param, self.agency.initiate,
+#                       self._db, journal, mesg)
+#         return d
 
-    def get_agent_id(self):
-        return self.queue_name
+#     def setup_endpoint(self):
+#         '''
+#         Sets up the destination for tested component to send messages to.
 
-    def get_shard_id(self):
-        return 'lobby'
+#         This returns:
+#          - endpoint: Recipient instance pointing to the queue above
+#                      (use it for reply-to fields)
+#          - queue: Queue instance we use may call .get() on to get
+#                   messages from components being tested
 
-    def on_message(self, msg):
-        self.messages.append(msg)
+#         @returns: tuple of endpoint, queue
+#         '''
+#         endpoint = recipient.Agent(str(uuid.uuid1()), 'lobby')
+#         messaging = self._messaging
+
+#         queue = messaging.define_queue(endpoint.key)
+#         messaging.define_exchange(endpoint.route, 'direct')
+#         messaging.create_binding(
+#             endpoint.route, endpoint.key, endpoint.key)
+#         return endpoint, queue
+
+#     def assert_queue_empty(self, queue, timeout=10):
+#         d = queue.get()
+#         d2 = delay(None, timeout)
+#         d2.addCallback(lambda _: self.assertFalse(d.called))
+#         d2.addCallback(d.callback)
+#         return d2
+
+#     # methods for handling documents
+
+#     def doc_factory(self, doc_class, **options):
+#         '''
+#         Builds document of given class and saves it to the database.
+
+#         @returns: Document with id and revision set
+#         @rtype:   subclass of feat.agents.document.Document
+#         '''
+#         document = factories.build(doc_class.type_name, **options)
+#         return self.agency._database.get_connection().save_document(document)
+
+#     # methods for sending and receiving custom messages
+
+#     def send_announce(self, manager):
+#         msg = message.Announcement()
+#         manager._get_medium().announce(msg)
+#         return manager
+
+#     def send_bid(self, contractor, bid=1):
+#         msg = message.Bid()
+#         msg.bids = [bid]
+#         contractor._get_medium().bid(msg)
+#         return contractor
+
+#     def send_refusal(self, contractor):
+#         msg = message.Refusal()
+#         contractor._get_medium().refuse(msg)
+#         return contractor
+
+#     def send_final_report(self, contractor):
+#         msg = message.FinalReport()
+#         contractor._get_medium().complete(msg)
+#         return contractor
+
+#     def send_cancel(self, contractor, reason=""):
+#         msg = message.Cancellation()
+#         msg.reason = reason
+#         contractor._get_medium().defect(msg)
+#         return contractor
+
+#     def recv_announce(self, expiration_time=None, traversal_id=None):
+#         msg = message.Announcement()
+#         self.guid = str(uuid.uuid1())
+#         msg.sender_id = self.guid
+#         msg.traversal_id = traversal_id or str(uuid.uuid1())
+
+#         return self.recv_msg(msg, expiration_time=expiration_time,
+#                              public=True)
+
+#     def recv_grant(self, _, update_report=None):
+#         msg = message.Grant()
+#         msg.update_report = update_report
+#         msg.sender_id = self.guid
+#         return self.recv_msg(msg).addCallback(lambda ret: _)
+
+#     def recv_rejection(self, _):
+#         msg = message.Rejection()
+#         msg.sender_id = self.guid
+#         return self.recv_msg(msg).addCallback(lambda ret: _)
+
+#     def recv_cancel(self, _, reason=""):
+#         msg = message.Cancellation()
+#         msg.reason = reason
+#         msg.sender_id = self.guid
+#         return self.recv_msg(msg).addCallback(lambda ret: _)
+
+#     def recv_ack(self, _):
+#         msg = message.Acknowledgement()
+#         msg.sender_id = self.guid
+#         return self.recv_msg(msg).addCallback(lambda ret: _)
+
+#     def recv_notification(self, result=None, traversal_id=None):
+#         msg = message.Notification()
+#         msg.traversal_id = traversal_id or str(uuid.uuid1())
+#         d = self.recv_msg(msg, key="dummy-notification")
+#         d.addCallback(defer.override_result, result)
+#         return d
+
+#     def recv_msg(self, msg, reply_to=None, key=None,
+#                   expiration_time=None, public=False):
+#         d = self.cb_after(arg=None, obj=self.agent._messaging,
+#                           method='on_message')
+
+#         msg.reply_to = reply_to or self.endpoint
+#         msg.expiration_time = expiration_time or (time.future(10))
+#         msg.protocol_type = self.protocol_type
+#         msg.protocol_id = self.protocol_id
+#         msg.message_id = str(uuid.uuid1())
+#         msg.receiver_id = self.remote_id
+
+#         key = 'dummy-contract' if public else self.agent._descriptor.doc_id
+#         shard = self.agent._descriptor.shard
+#         factory = recipient.Broadcast if public else recipient.Agent
+#         msg.recipient = factory(key, shard)
+#         self.agency._messaging.dispatch(msg)
+#         return d
+
+#     def reply(self, msg, reply_to, original_msg):
+#         d = self.cb_after(arg=None, obj=self.agent._messaging,
+#                           method='on_message')
+
+#         dest = recipient.IRecipient(original_msg)
+
+#         msg.reply_to = recipient.IRecipient(reply_to)
+#         msg.message_id = str(uuid.uuid1())
+#         msg.protocol_id = original_msg.protocol_id
+#         msg.expiration_time = time.future(10)
+#         msg.protocol_type = original_msg.protocol_type
+#         msg.receiver_id = original_msg.sender_id
+
+#         msg.recipient = dest
+#         self.agency._messaging.dispatch(msg)
+#         return d
 
 
-@feat.register_agent('descriptor')
-class DummyAgent(agent.BaseAgent, Mock):
+# class StubAgent(object):
 
-    # We don't want a SetupMonitoring task in all the tests
-    need_local_monitoring = False
+#     implements(ISink)
 
-    def __init__(self, medium):
-        agent.BaseAgent.__init__(self, medium)
-        Mock.__init__(self)
+#     def __init__(self):
+#         self.queue_name = str(uuid.uuid1())
+#         self.messages = []
 
-    @Mock.record
-    def initiate(self):
-        pass
+#     ### IChannelSink ###
 
-    @Mock.stub
-    def shutdown(self):
-        pass
+#     def get_agent_id(self):
+#         return self.queue_name
 
-    @Mock.stub
-    def startup(self):
-        pass
+#     def get_shard_id(self):
+#         return 'lobby'
 
-    @Mock.stub
-    def unregister(self):
-        pass
+#     def on_message(self, msg):
+#         self.messages.append(msg)
 
 
-class DummyRecorderNode(journal.DummyRecorderNode, log.LogProxy, log.Logger):
+# @feat.register_agent('descriptor')
+# class DummyAgent(agent.BaseAgent, Mock):
 
-    def __init__(self, test_case):
-        journal.DummyRecorderNode.__init__(self)
-        log.LogProxy.__init__(self, test_case)
-        log.Logger.__init__(self, test_case)
+#     # We don't want a SetupMonitoring task in all the tests
+#     need_local_monitoring = False
+
+#     def __init__(self, medium):
+#         agent.BaseAgent.__init__(self, medium)
+#         Mock.__init__(self)
+
+#     @Mock.record
+#     def initiate(self):
+#         pass
+
+#     @Mock.stub
+#     def shutdown(self):
+#         pass
+
+#     @Mock.stub
+#     def startup(self):
+#         pass
+
+#     @Mock.stub
+#     def unregister(self):
+#         pass
+
+
+# class DummyRecorderNode(journal.DummyRecorderNode, log.LogProxy, log.Logger):
+
+#     def __init__(self, test_case):
+#         journal.DummyRecorderNode.__init__(self)
+#         log.LogProxy.__init__(self, test_case)
+#         log.Logger.__init__(self, test_case)
