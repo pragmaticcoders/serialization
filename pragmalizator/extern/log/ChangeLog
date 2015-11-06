@@ -1,0 +1,108 @@
+2010-04-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py:
+	  Handle the case where there is no useful stack to deal with.
+
+2009-06-23  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py:
+	  Fix various pychecker warnings.
+	  Rewrite writeMarker in less lines, although it's still ugly
+	  to special-case for errorObject, and possibly that should move to
+	  doLog instead.
+
+2008-05-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py:
+	  Provide exception message when a handler fails.
+
+2007-11-07  Johan Dahlin  <johan@gnome.org>
+
+	* log.py: use range() for an enum
+
+2007-11-07  Johan Dahlin  <johan@gnome.org>
+
+	* log.py (getLoggingSettings, setLoggingSettings):
+	Add two new functions for setting and restoring the current log
+	settings.
+
+2007-10-31  Andy Wingo  <wingo@pobox.com>
+
+	Patch by: Philippe Normand <philippe fluendo.com>
+
+	* log.py (reopenOutputFiles, outputToFiles): Allow redirection of
+	e.g. stderr but not stdout. Fixes #748.
+
+2007-07-24  Andy Wingo  <wingo@pobox.com>
+
+	Patch by: Philippe Normand <philippe fluendo.com>
+
+	* log.py: Optionally support colorizing the log level. Fixes #642.
+	Patch modified slightly.
+
+	* termcolor.py: New file, imported only if we are enabling color
+	debug output.
+
+2007-06-25  Andy Wingo  <wingo@pobox.com>
+
+	* log.py (safeprintf): New procedure. See #613.
+	(stderrHandler, TwistedLogObserver.emit): Use safeprintf.
+
+2007-06-11  Andy Wingo  <wingo@pobox.com>
+
+	* log.py (outputToFiles): Store the previous SIGHUP handler, if
+	any, and call it after rotating logs.
+
+2007-05-09  Andy Wingo  <wingo@pobox.com>
+
+	Patch by: Philippe Normand <philippe fluendo.com>
+
+	* log.py (init): Adapt to addLimitedLogHandler.
+	(addLogHandler): Only add generic log handlers.
+	(addLimitedLogHandler): New function, splits out management of
+	limited log handlers.
+	(removeLogHandler, removeLimitedLogHandler): New functions.
+
+	* test_log.py (TestLog.testLimitInvisible)
+	(TestLog.testLimitedVisible, TestLog.testFormatStrings)
+	(TestLog.testLimitedError, TestLog.testLogHandlerLimitedLevels):
+	Limited log handlers are now managed via addLimitedLogHandler.
+	(TestLog.testLogHandler)
+	(TestOwnLogHandler.testOwnLogHandlerLimited)
+	(TestOwnLogHandler.testLogHandlerAssertion): No need for
+	limited=False.
+
+2007-04-30  Andy Wingo  <wingo@pobox.com>
+
+	* log.py (TwistedLogObserver.emit): Write to stderr, like the
+	stderrhandler, both for sane interleaving with normal logs and so
+	that we don't cause 100% CPU usage if the disk is full. See #613.
+
+2007-04-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py:
+	* test_log.py (TestLog.testSetDebug, TestLog.testLimitInvisible,
+	  TestLog.testLimitedVisible, TestLog.testFormatStrings,
+	  TestLog.testLimitedError, TestLog.testLogHandlerLimitedLevels,
+	  TestLog.testLogHandler, TestOwnLogHandler.testOwnLogHandlerLimited):
+	  Move over test and adapt.
+
+2007-04-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py (stderrHandler, init, setDebug, setPackageScrubList, reset,
+	  addLogHandler, error, log, getExceptionMessage, reopenOutputFiles,
+	  outputToFiles, sighup, Loggable, Loggable.warningFailure,
+	  Loggable.logObjectName, _getTheTwistedLogObserver, getFailureMessage,
+	  warningFailure, logTwisted, TwistedLogObserver,
+	  TwistedLogObserver.__init__, TwistedLogObserver.emit,
+	  TwistedLogObserver.ignoreErrors, TwistedLogObserver.clearIgnores):
+	  Reorder log file a little.
+
+2007-04-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* README: added.
+
+2007-04-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* log.py: copied and adapted from flumotion.common.log so outside
+	  projects can use it.
