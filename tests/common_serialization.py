@@ -25,8 +25,13 @@
 
 import itertools
 import types
+from past.types import long, unicode
 
-from zope.interface import Interface, implements
+from builtins import range
+from builtins import object
+
+from zope.interface import Interface
+from zope.interface.declarations import implementer
 from zope.interface.interface import InterfaceClass
 
 from unittest import SkipTest
@@ -45,16 +50,15 @@ def qual(clazz):
 
 
 class DummyEnum(enum.Enum):
-    a, b, c = range(3)
+    a, b, c = list(range(3))
 
 
 class DummyInterface(Interface):
     pass
 
 
+@implementer(ISnapshotable)
 class SnapshotableDummy(object):
-
-    implements(ISnapshotable)
 
     def __init__(self, value):
         self.value = value
@@ -350,7 +354,7 @@ class ConverterTest(common.TestCase):
         valdesc = [(Capabilities.int_values, Capabilities.int_keys,
                     [int, long], [0, -42, 42]),
                    (Capabilities.long_values, Capabilities.long_keys,
-                    [int, long], [0L]),
+                    [int, long], [long(0)]),
                    (Capabilities.long_values, Capabilities.long_keys,
                     long, [-2**66, 2**66]),
                    (Capabilities.float_values, Capabilities.float_keys,

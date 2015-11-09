@@ -19,8 +19,12 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+
 import re
-import StringIO
+import io
 import traceback
 import types
 import sys
@@ -79,7 +83,7 @@ class FeatError(Exception):
         self.error_code = kwargs.pop('code', default_code)
         self.error_name = kwargs.pop('name', default_name)
 
-        if args and isinstance(args[0], unicode):
+        if args and isinstance(args[0], str):
             # Exception don't like passing them unicode strings
             # as a message. Here we do our best to encode it
             try:
@@ -165,7 +169,7 @@ def get_failure_message(failure):
 
 def get_exception_traceback(exception=None, cleanup=False):
     #FIXME: Only work if the exception was raised in the current context
-    io = StringIO.StringIO()
+    io = io.StringIO()
     traceback.print_exc(limit=30, file=io)
     tb = io.getvalue()
     if not tb:
@@ -195,7 +199,7 @@ def get_failure_traceback(failure, cleanup=False):
     if isinstance(failure.type, str):
         return ""
 
-    io = StringIO.StringIO()
+    io = io.StringIO()
     tb = failure.getTraceback()
     if cleanup:
         tb = clean_traceback(tb)

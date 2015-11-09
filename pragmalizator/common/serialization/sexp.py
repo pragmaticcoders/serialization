@@ -19,6 +19,9 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
+
+from past.types import long
+
 from pragmalizator.common import reflect
 
 from pragmalizator.common.serialization import base

@@ -24,6 +24,8 @@
 # Headers in this file shall remain intact.
 
 import types
+from past.types import long
+from future.utils import with_metaclass
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
@@ -76,11 +78,11 @@ class DummyImmutableSerializable(serialization.ImmutableSerializable):
         self._restored = True
 
 
-class Versioned(serialization.Serializable, base.VersionAdapter):
-
-    __metaclass__ = type("MetaAv1", (type(serialization.Serializable),
-                                     type(base.VersionAdapter)), {})
-
+class Versioned(with_metaclass(
+        type("MetaAv1", (type(serialization.Serializable),
+                         type(base.VersionAdapter)), {}),
+        serialization.Serializable, base.VersionAdapter)):
+    pass
 
 class Av1(Versioned):
 
@@ -512,7 +514,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         yield int, [0], int, [0], False
         yield int, [42], int, [42], False
         yield int, [-42], int, [-42], False
-        yield long, [0L], long, [0L], False
+        yield long, [long(0)], long, [long(0)], False
         yield long, [2**66], long, [2**66], False
         yield long, [-2**66], long, [-2**66], False
         yield float, [0.0], float, [0.0], False

@@ -19,7 +19,7 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-from zope.interface import implements, classProvides
+from zope.interface.declarations import provider, implementer
 
 from pragmalizator.common import serialization, adapter, error
 from pragmalizator.common.serialization import base
@@ -82,10 +82,9 @@ class AdaptedExceptionMixin(object):
 
 @adapter.register(Exception, ISerializable)
 @serialization.register
+@implementer(ISerializable)
+@provider(IRestorator)
 class ExceptionAdapter(BaseAdapter):
-
-    classProvides(IRestorator)
-    implements(ISerializable)
 
     type_name = "exception"
     adapter_mixin = AdaptedExceptionMixin
@@ -128,11 +127,10 @@ class ExceptionAdapter(BaseAdapter):
 
 @adapter.register(error.FeatError, ISerializable)
 @serialization.register
+@provider(IRestorator)
 class FeatErrorAdapter(ExceptionAdapter):
     """I'm cleaning up information about the traceback as we don't want it
     to end up in journal."""
-
-    classProvides(IRestorator)
 
     def __init__(self, exception):
         ExceptionAdapter.__init__(self, exception)
@@ -181,10 +179,9 @@ if dns:
 
     @adapter.register(dns.Message, ISerializable)
     @serialization.register
+    @provider(IRestorator)
+    @implementer(ISerializable)
     class MessageAdapter(BaseAdapter, base.Serializable):
-
-        classProvides(IRestorator)
-        implements(ISerializable)
 
         def __init__(self, msg):
             self._msg = msg

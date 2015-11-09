@@ -26,6 +26,7 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 import itertools
 import types
+from past.types import long
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
@@ -75,7 +76,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         yield [int, long], [0], str, ["0"], False
         yield [int, long], [42], str, ["42"], False
         yield [int, long], [-42], str, ["-42"], False
-        yield [int, long], [0L], str, ["0"], False
+        yield [int, long], [long(0)], str, ["0"], False
         yield long, [2**72], str, ["4722366482869645213696"], False
         yield long, [-2**72], str, ["-4722366482869645213696"], False
         yield float, [0.0], str, ["0.0"], False

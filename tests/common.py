@@ -24,7 +24,8 @@ import functools
 import sys
 import uuid
 
-from zope.interface import implements
+from zope.interface.declarations import implementer
+
 from pragmalizator.common import log, decorator
 
 from pragmalizator.interface.generic import ITimeProvider
@@ -84,9 +85,8 @@ _getConfig = dict
 #     return wrap
 
 
+@implementer(ITimeProvider)
 class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
-
-    implements(ITimeProvider)
 
     log_category = "test"
 

@@ -25,8 +25,12 @@ import copy
 import sys
 import types
 
-from zope.interface import implements
+from zope.interface.declarations import provider, implementer
 from zope.interface.interface import InterfaceClass
+from future.utils import with_metaclass
+
+from future.utils import raise_
+from past.types import long, unicode
 
 from pragmalizator.common import decorator, enum, adapter, reflect, registry
 from pragmalizator.interface.serialization import ISerializable, Capabilities
@@ -103,10 +107,9 @@ def get_registry():
     return _global_registry
 
 
+@implementer(ISnapshotable)
 class SnapshotableAdapter(object):
     """Make basic types a L{ISnapshotable} that return itself as snapshot."""
-
-    implements(ISnapshotable)
 
     def __init__(self, value):
         self.value = value
@@ -116,7 +119,7 @@ class SnapshotableAdapter(object):
     def snapshot(self):
         return self.value
 
-basic_types = (int, str, unicode, float, type, bool, types.NoneType)
+basic_types = (int, str, unicode, float, type, bool, type(None))
 for adapted in basic_types:
     adapter.register(adapted, ISnapshotable)
 
@@ -130,14 +133,11 @@ class MetaSnapshotable(type):
         super(MetaSnapshotable, cls).__init__(name, bases, dct)
 
 
-class Snapshotable(object):
+@implementer(ISnapshotable)
+class Snapshotable(with_metaclass(MetaSnapshotable, object)):
     """Simple L{ISnapshotable} that snapshot the instance attributes
     not starting by an underscore. If the class attribute type_name
     is not defined, the canonical name of the class is used."""
-
-    __metaclass__ = MetaSnapshotable
-
-    implements(ISnapshotable)
 
     referenceable = True
 
@@ -149,15 +149,13 @@ class Snapshotable(object):
                      if isinstance(k, str) and not k.startswith('_')])
 
 
+@implementer(IVersionAdapter)
 class MetaVersionAdapter(type):
+    pass
 
-    implements(IVersionAdapter)
 
-
-class VersionAdapter(object):
-
-    __metaclass__ = MetaVersionAdapter
-    implements(IVersionAdapter)
+@implementer(IVersionAdapter)
+class VersionAdapter(with_metaclass(MetaVersionAdapter, object)):
 
     @classmethod
     def adapt_version(cls, snapshot, source_ver, target_ver):
@@ -187,19 +185,16 @@ class VersionAdapter(object):
         return snapshot
 
 
+@implementer(IRestorator)
 class MetaSerializable(MetaSnapshotable):
+    pass
 
-    implements(IRestorator)
 
-
-class Serializable(Snapshotable):
+@implementer(ISerializable)
+class Serializable(with_metaclass(MetaSerializable, Snapshotable)):
     """Simple L{ISerializable} that serialize and restore the full instance
     dictionary. If the class attribute type_name is not defined, the canonical
     name of the class is used."""
-
-    __metaclass__ = MetaSerializable
-
-    implements(ISerializable)
 
     type_name = None
 
@@ -220,16 +215,13 @@ class Serializable(Snapshotable):
         pass
 
 
-class ImmutableSerializable(Snapshotable):
+@implementer(ISerializable)
+class ImmutableSerializable(with_metaclass(MetaSerializable, Snapshotable)):
     """Simple immutable L{ISerializable} that serialize and restore
     the full instance dictionary. If the class attribute type_name
     is not defined, the canonical name of the class is used.
     Should be used for any serializable to be used as dictionary keys
     or set elements (the one providing __hash__)."""
-
-    __metaclass__ = MetaSerializable
-
-    implements(ISerializable)
 
     type_name = None
 
@@ -250,23 +242,21 @@ class ImmutableSerializable(Snapshotable):
         pass
 
 
+@implementer(IRegistry)
 class Registry(registry.BaseRegistry):
     """Keep track of L{IRestorator}. Used by unserializers."""
-
-    implements(IRegistry)
 
     allow_blank_application = True
     verify_interface = IRestorator
     key_attribute = 'type_name'
 
 
+@implementer(IExternalizer)
 class Externalizer(object):
     """Simplistic implementation of L{IExternalizer}.
     WARNING, by default it uses id() for identifying instances,
     IT WILL NOT WORK IF THE INSTANCE GOT SERIALIZED/UNSERIALIZED
     because it's id() would change.."""
-
-    implements(IExternalizer)
 
     def __init__(self):
         self._registry = {} # {INSTANCE_ID: ISNTANCE}
@@ -313,6 +303,7 @@ def referenceable(method):
     return wrapper
 
 
+@implementer(IFreezer, IConverter)
 class Serializer(object):
     """Base class for serializers handling references.
 
@@ -370,8 +361,6 @@ class Serializer(object):
     #FIXME: Add datetime types datetime, date, time and timedelta
 
     """
-
-    implements(IFreezer, IConverter)
 
     pack_str = None
     pack_unicode = None
@@ -488,11 +477,14 @@ class Serializer(object):
             try:
                 snapshotable = ISnapshotable(value)
             except TypeError:
-                raise TypeError("Freezing of type %s values "
-                                "not supported by %s. Value = %r."
-                                % (type(value).__name__,
-                                   reflect.canonical_name(self), value)), \
-                      None, sys.exc_info()[2]
+                raise_(
+                    TypeError,
+                    "Freezing of type %s values "
+                    "not supported by %s. Value = %r."
+                    % (type(value).__name__,
+                       reflect.canonical_name(self), value),
+                    sys.exc_info()[2]
+                )
 
             return self.flatten_instance(snapshotable, caps, freezing)
 
@@ -501,11 +493,14 @@ class Serializer(object):
             try:
                 serializable = ISerializable(value)
             except TypeError:
-                raise TypeError("Serialization of type %s values "
-                                "not supported by %s. Value = %r."
-                                % (reflect.canonical_name(value),
-                                   reflect.canonical_name(self), value)), \
-                      None, sys.exc_info()[2]
+                raise_(
+                    TypeError,
+                    "Serialization of type %s values "
+                    "not supported by %s. Value = %r."
+                    % (reflect.canonical_name(value),
+                       reflect.canonical_name(self), value),
+                    sys.exc_info()[2]
+                )
 
             return self.flatten_instance(serializable, caps, freezing)
 
@@ -829,6 +824,7 @@ class DelayPacking(Exception):
     containing dereferences."""
 
 
+@implementer(IConverter)
 class Unserializer(object):
     """Base class for unserializers. It handle delayed unpacking
     and instance restoration to resolve circular references.
@@ -841,7 +837,6 @@ class Unserializer(object):
     unserializing.
     """
 
-    implements(IConverter)
 
     pass_through_types = ()
 

@@ -19,8 +19,10 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-from zope.interface import implements
+from zope.interface.declarations import implementer
 from zope.interface.interface import InterfaceClass
+
+from past.types import unicode, long
 
 from pragmalizator.common import enum, reflect
 from pragmalizator.interface.serialization import *
@@ -28,10 +30,9 @@ from pragmalizator.interface.serialization import *
 from pragmalizator.common.serialization import base
 
 
+@implementer(IExternal)
 class External(object):
     '''Used by TreeSerializer to encapsulate external references.'''
-
-    implements(IExternal)
 
     __slots__ = ("identifier", )
 
@@ -57,11 +58,10 @@ class External(object):
         return not self.__eq__(other)
 
 
+@implementer(IInstance)
 class Instance(object):
     '''Used by TreeSerializer to encapsulate ISerializable instances.
     Implements L{IInstance} and can be compared for equality.'''
-
-    implements(IInstance)
 
     __slots__ = ("type_name", "snapshot")
 
@@ -89,12 +89,11 @@ class Instance(object):
         return not self.__eq__(other)
 
 
+@implementer(IReference)
 class Reference(object):
     '''Used by TreeSerializer to encapsulate references.
     Can be compared for equality and hashed if the referenced
     value is hashable. Implements L{IReference}.'''
-
-    implements(IReference)
 
     __slots__ = ("refid", "value")
 
@@ -126,12 +125,12 @@ class Reference(object):
         return not self.__eq__(other)
 
 
+@implementer(IDereference)
 class Dereference(object):
     '''Used by TreeSerializer to encapsulate a dereference to a previous
     referenced value. Can be compared for equality and hashed.
     Implements L{IDereference}.'''
 
-    implements(IDereference)
 
     __slots__ = ("refid", )
 

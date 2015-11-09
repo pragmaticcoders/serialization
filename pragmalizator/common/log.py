@@ -25,7 +25,7 @@
 import os
 import sys
 
-from zope.interface import implements
+from zope.interface.declarations import implementer
 
 from pragmalizator.interface.log import ILogKeeper, ILogger, LogLevel
 flulog = None #dynamicaly imported from FluLogKeeper.init()
@@ -110,9 +110,8 @@ def trace(format, *args):
     _default_keeper.do_log(LogLevel.debug, None, "trace", format, args)
 
 
+@implementer(ILogger)
 class Logger(object):
-
-    implements(ILogger)
 
     log_name = None
     log_category = None
@@ -162,9 +161,8 @@ class Logger(object):
                             self.log_category, format, args)
 
 
+@implementer(ILogKeeper)
 class Console(object):
-
-    implements(ILogKeeper)
 
     def __init__(self, fd, level=None):
         self.fd = fd
@@ -177,10 +175,9 @@ class Console(object):
             self.fd.write("\n")
 
 
+@implementer(ILogKeeper)
 class LogProxy(object):
     '''Proxies log entries to another log keeper.'''
-
-    implements(ILogKeeper)
 
     def __init__(self, logkeeper):
         self._logkeeper = ILogKeeper(logkeeper)
@@ -194,10 +191,9 @@ class LogProxy(object):
         self._logkeeper = ILogKeeper(logkeeper)
 
 
+@implementer(ILogKeeper)
 class LogTee(object):
     '''Proxies log entries to more than one log keeper.'''
-
-    implements(ILogKeeper)
 
     def __init__(self):
         # name -> ILogKeeper
@@ -228,12 +224,11 @@ class LogTee(object):
                 depth=depth+1, file_path=file_path, line_num=line_num)
 
 
+@implementer(ILogKeeper)
 class LogBuffer(object):
     '''Keeps log entries in memory to later be able to dump them. We are
     using this class not to loose log lines logged before the proper logging
     infrastracture is set up.'''
-
-    implements(ILogKeeper)
 
     def __init__(self, limit):
         self._limit = limit
@@ -268,11 +263,11 @@ class LogBuffer(object):
             self._buffer.append(data)
 
 
+@implementer(ILogKeeper)
 class PythonLogKeeper(object):
     '''
     Class outputing everything to a logger from logging python stdlib
     '''
-    implements(ILogKeeper)
 
     def __init__(self, logger):
         self._logger = logger
@@ -295,14 +290,14 @@ class PythonLogKeeper(object):
         method(format, *args, extra=extra)
 
 
+@implementer(ILogKeeper)
 class VoidLogKeeper(object):
-
-    implements(ILogKeeper)
 
     def do_log(self, *args, **kwargs):
         pass
 
 
+@implementer(ILogKeeper)
 class FluLogKeeper(object):
     '''Log keeper using flumotion logging library.
     The class method init() should be called before logger instance are used.
@@ -314,8 +309,6 @@ class FluLogKeeper(object):
         > FluLogKeeper.set_debug("*:5")
     '''
 
-    implements(ILogKeeper)
-
     _initialized = False
 
     @classmethod
@@ -323,7 +316,7 @@ class FluLogKeeper(object):
         global flulog
         if not cls._initialized:
             if path:
-                sys.stderr = file(path, 'a')
+                sys.stderr = open(path, 'a')
             from pragmalizator.extern.log import log as flulog
             flulog.init('FEAT_DEBUG')
             flulog.setPackageScrubList('pragmalizator', 'twisted')

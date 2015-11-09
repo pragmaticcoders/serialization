@@ -334,7 +334,7 @@ def doLog(level, object, category, format, args, where=-1,
         for handler in _log_handlers:
             try:
                 handler(level, object, category, file, line, message)
-            except TypeError, e:
+            except TypeError as e:
                 raise SystemError("handler %r raised a TypeError: %s" % (
                     handler, getExceptionMessage(e)))
 
@@ -351,7 +351,7 @@ def doLog(level, object, category, format, args, where=-1,
             # loggers there before
             try:
                 handler(level, object, category, filePath, line, message)
-            except TypeError, e:
+            except TypeError as e:
                 raise SystemError("handler %r raised a TypeError: %s" % (
                     handler, getExceptionMessage(e)))
 
@@ -411,7 +411,7 @@ def safeprintf(file, format, *args):
             file.write(format % args)
         else:
             file.write(format)
-    except IOError, e:
+    except IOError as e:
         if e.errno == errno.EPIPE:
             # if our output is closed, exit; e.g. when logging over an
             # ssh connection and the ssh connection is closed
@@ -688,7 +688,7 @@ def reopenOutputFiles():
         return
 
     def reopen(name, fileno, *args):
-        oldmask = os.umask(0026)
+        oldmask = os.umask(26)
         try:
             f = open(name, 'a+', *args)
         finally:
