@@ -134,10 +134,18 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
                 self.skip = 'slow test'
 
         # Handle configurable attributes
-        for attr in self.configurable_attributes:
-            value = util.acquireAttribute(self._parents, attr, None)
-            if value is not None:
-                setattr(self, attr, value)
+        # for attr in self.configurable_attributes:
+        #     value = acquireAttribute(self._parents, attr, None)
+        #     if value is not None:
+        #         setattr(self, attr, value)
+
+    @classmethod
+    def setUpClass(cls):
+        if cls is TestCase or hasattr(cls, 'abstract'):
+            raise unittest.SkipTest(
+                "Skip {} tests, it's a base class".format(cls)
+            )
+        super(TestCase, cls).setUpClass()
 
     def assert_not_skipped(self):
         if self.skip_coverage and sys.gettrace():
@@ -147,12 +155,12 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
         log.test_reset()
         self.assert_not_skipped()
         # Scale time if configured
-        scale = util.acquireAttribute(self._parents, 'timescale', None)
-        if scale is not None:
-            time.scale(scale)
-        else:
-            time.reset()
-        self.info("Test running with timescale: %r", time._get_scale())
+        # scale = acquireAttribute(self._parents, 'timescale', None)
+        # if scale is not None:
+        #     time.scale(scale)
+        # else:
+        #     time.reset()
+        # self.info("Test running with timescale: %r", time._get_scale())
 
     def getSlow(self):
         """
@@ -162,7 +170,7 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
         Returns C{False} if it cannot find anything.
         """
 
-        return util.acquireAttribute(self._parents, 'slow', False)
+        # return acquireAttribute(self._parents, 'slow', False)
 
     def wait_for(self, check, timeout, freq=0.5, kwargs=dict()):
         d = time.wait_for_ex(check, timeout, freq=freq, kwargs=kwargs,
@@ -216,21 +224,6 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
                     self.assertTrue(isinstance(arg, param))
 
         return obj
-
-    def assertIsInstance(self, _, klass):
-        self.assertTrue(isinstance(_, klass),
-             "Expected instance of %r, got %r instead" % (klass, _.__class__))
-        return _
-
-    def assertIs(self, expr1, expr2, msg=None):
-        self.assertEqual(id(expr1), id(expr2),
-                         msg or ("Expected same instances and got %r and %r"
-                                 % (expr1, expr2)))
-
-    def assertIsNot(self, expr1, expr2, msg=None):
-        self.assertNotEqual(id(expr1), id(expr2),
-                            msg or ("Expected different instances and got "
-                                    "two %r" % (expr1, )))
 
     def assertAsyncEqual(self, chain, expected, value, *args, **kwargs):
         '''Adds an asynchronous assertion for equality to the specified
@@ -292,28 +285,11 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
 
     def tearDown(self):
         log.test_reset()
-        time.reset()
-        signal.reset()
 
     ### ITimeProvider Methods ###
 
     def get_time(self):
         return time.time()
-
-    ### Private Methods ###
-
-    def _assertAsync(self, param, check, value, *args, **kwargs):
-        if isinstance(param, failure.Failure):
-            if param.check(AssertionError):
-                param.raiseException()
-        if isinstance(value, defer.Deferred):
-            value.addBoth(check)
-            return value
-
-        if args is not None and callable(value):
-            return self._assertAsync(param, check, value(*args, **kwargs))
-
-        return check(value)
 
 
 # class Mock(object):

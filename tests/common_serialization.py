@@ -168,6 +168,12 @@ class ConverterTest(common.TestCase):
     def tearDown(self):
         self.externalizer.remove(self.ext_val)
 
+    @classmethod
+    def setUpClass(cls):
+        if cls is ConverterTest:
+            cls.abstract = True
+        super(ConverterTest, cls).setUpClass()
+
     def testUnserialization(self):
 
         def inverter(gen):
