@@ -555,7 +555,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         ### Freezing-Only Types ###
 
         if freezing:
-            mod_name = "pragmalizator.test.test_common_serialization_pytree"
+            mod_name = "tests.test_common_serialization_pytree"
             fun_name = mod_name + ".dummy_function"
             meth_name = mod_name + ".DummyClass.dummy_method"
 

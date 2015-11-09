@@ -58,7 +58,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
     def setUp(self):
         common_serialization.ConverterTest.setUp(self)
         ext = self.externalizer
-        self.serializer = json.Serializer(externalizer=ext)
+        self.serializer = json.Serializer(externalizer=ext, sort_keys=True)
         self.unserializer = json.Unserializer(externalizer=ext)
 
     def convertion_table(self, capabilities, freezing):
@@ -93,10 +93,10 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         yield (type, [datetime],
                str, ['[".type", "datetime.datetime"]'], False)
         yield (type, [common_serialization.SerializableDummy],
-               str, ['[".type", "pragmalizator.test.common_serialization.'
+               str, ['[".type", "tests.common_serialization.'
                      'SerializableDummy"]'], False)
         yield (InterfaceClass, [DummyInterface],
-               str, ['[".type", "pragmalizator.test.test_common_serialization_json.'
+               str, ['[".type", "tests.test_common_serialization_json.'
                      'DummyInterface"]'], False)
 
         ### Enums ###
@@ -104,10 +104,10 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         DummyEnum = common_serialization.DummyEnum
 
         yield (DummyEnum, [DummyEnum.a],
-               str, ['[".enum", "pragmalizator.test.common_serialization.'
+               str, ['[".enum", "tests.common_serialization.'
                      'DummyEnum.a"]'], False)
         yield (DummyEnum, [DummyEnum.c],
-               str, ['[".enum", "pragmalizator.test.common_serialization.'
+               str, ['[".enum", "tests.common_serialization.'
                      'DummyEnum.c"]'], False)
 
         ### External References ###
@@ -128,7 +128,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         ### Freezing-Only Types ###
 
         if freezing:
-            mod_name = "pragmalizator.test.test_common_serialization_json"
+            mod_name = "tests.test_common_serialization_json"
             fun_name = '"%s.dummy_function"' % mod_name
             meth_name = '"%s.DummyClass.dummy_method"' % mod_name
 
