@@ -49,6 +49,8 @@ def init(path=None):
 def test_reset():
     '''Called from test setUp to get rid of keepers left by the testcases.'''
     tee = get_default()
+    if isinstance(tee, VoidLogKeeper):
+        return
     for name in tee.get_names():
         if name == 'flulog':
             continue
