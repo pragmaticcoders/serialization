@@ -182,7 +182,7 @@ class ConverterTest(common.TestCase):
 
         def inverter(gen):
             while True:
-                record = gen.next()
+                record = next(gen)
                 if len(record) == 5:
                     t1, v1, t2, v2, c = record
                     yield t2, v2, t1, v1, c
@@ -531,11 +531,11 @@ class ConverterTest(common.TestCase):
                 for k in iter_all_keys(desc, stop):
                     if not isinstance(k, enum.Enum):
                         try:
-                            v = values.next()
+                            v = next(values)
                         except StopIteration:
                             # Loop back to the first value
                             values = iter(iter_all_values(desc, stop))
-                            v = values.next()  # At least there is one value
+                            v = next(values)  # At least there is one value
                             done = True
                         d[k] = v
                 yield dict, d, True
@@ -565,8 +565,8 @@ class ConverterTest(common.TestCase):
         if Capabilities.circular_references in capabilities:
             # get supported values, keys and referencable
             values = iter_values(valdesc)
-            _, X, _ = values.next()
-            _, Y, _ = values.next()
+            _, X, _ = next(values)
+            _, Y, _ = next(values)
 
             keys = iter_keys(valdesc)
             _, K, _ = keys.next()
