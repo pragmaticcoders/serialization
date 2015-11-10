@@ -21,6 +21,7 @@
 # Headers in this file shall remain intact.
 
 from past.types import long
+from builtins import bytes
 
 from pragmalizator.common import reflect
 
@@ -148,7 +149,7 @@ class Unserializer(base.Unserializer):
 
     def unpack_unicode(self, data):
         _, value = data
-        if not isinstance(value, str):
+        if not isinstance(value, (bytes, str)):
             raise TypeError("Invalid %s value type: %r"
                             % (UNICODE_ATOM, value))
         return value.decode(UNICODE_FORMAT_ATOM)
