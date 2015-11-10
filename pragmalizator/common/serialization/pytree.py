@@ -274,7 +274,7 @@ class Unserializer(base.Unserializer):
         container.update(self.unpack_unordered_values(data))
 
     def unpack_dict(self, container, data):
-        container.update(self.unpack_unordered_pairs(data.iteritems()))
+        container.update(self.unpack_unordered_pairs(data.items()))
 
     _unpackers = {tuple: (None, unpack_tuple),
                   list: (list, unpack_list),

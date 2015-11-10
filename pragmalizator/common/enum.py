@@ -103,7 +103,7 @@ class MetaEnum(type):
         return cls._items.items()
 
     def iteritems(cls):
-        return cls._items.iteritems()
+        return cls._items.items()
 
     def values(cls):
         return cls._items.values()

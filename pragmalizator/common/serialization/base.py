@@ -145,7 +145,7 @@ class Snapshotable(with_metaclass(MetaSnapshotable, object)):
 
     def snapshot(self):
         return dict([(k, v)
-                     for k, v in self.__dict__.iteritems()
+                     for k, v in self.__dict__.items()
                      if isinstance(k, str) and not k.startswith('_')])
 
 

@@ -790,8 +790,8 @@ class ConverterTest(common.TestCase):
         if isinstance(a, (dict, types.DictProxyType)):
             if len(a) != len(b):
                 return False
-            for k1, v1 in a.iteritems():
-                for k2, v2 in b.iteritems():
+            for k1, v1 in a.items():
+                for k2, v2 in b.items():
                     # We keep a copy of copy of the reference dictionaries
                     # because if the comparison fail we don't want to pollute
                     # them with invalid references

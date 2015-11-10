@@ -99,7 +99,7 @@ class Formatable(serialization.Serializable, annotate.Annotable):
             setattr(self, field.name, value)
 
         # finally process the property setters
-        for key, value in properties.iteritems():
+        for key, value in properties.items():
             setattr(self, key, value)
 
     def __eq__(self, other):
