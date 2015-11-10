@@ -24,7 +24,7 @@
 # Headers in this file shall remain intact.
 
 import types
-from past.types import long
+from past.types import long, unicode
 from future.utils import with_metaclass
 
 from zope.interface import Interface
@@ -32,7 +32,6 @@ from zope.interface.interface import InterfaceClass
 
 from pragmalizator.common import serialization, reflect
 from pragmalizator.common.serialization import pytree, base
-from pragmalizator.interface.serialization import *
 
 from . import common, common_serialization
 
@@ -49,7 +48,7 @@ class DummyClass(serialization.Serializable):
 
 
 def dummy_function():
-        pass
+    pass
 
 
 class DummyInterface(Interface):
@@ -83,6 +82,7 @@ class Versioned(with_metaclass(
                          type(base.VersionAdapter)), {}),
         serialization.Serializable, base.VersionAdapter)):
     pass
+
 
 class Av1(Versioned):
 
@@ -500,11 +500,11 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
     def setUp(self):
         common_serialization.ConverterTest.setUp(self)
         ext = self.externalizer
-        self.serializer = pytree.Serializer(externalizer = ext)
-        self.unserializer = pytree.Unserializer(externalizer = ext)
+        self.serializer = pytree.Serializer(externalizer=ext)
+        self.unserializer = pytree.Unserializer(externalizer=ext)
 
     def convertion_table(self, capabilities, freezing):
-        ### Basic immutable types ###
+        # ## Basic immutable types ###
 
         yield str, [""], str, [""], False
         yield str, ["dummy"], str, ["dummy"], False
@@ -515,8 +515,8 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         yield int, [42], int, [42], False
         yield int, [-42], int, [-42], False
         yield long, [long(0)], long, [long(0)], False
-        yield long, [2**66], long, [2**66], False
-        yield long, [-2**66], long, [-2**66], False
+        yield long, [2 ** 66], long, [2 ** 66], False
+        yield long, [-2 ** 66], long, [-2 ** 66], False
         yield float, [0.0], float, [0.0], False
         yield float, [3.1415926], float, [3.1415926], False
         yield float, [1e24], float, [1e24], False
@@ -525,7 +525,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         yield bool, [False], bool, [False], False
         yield type(None), [None], type(None), [None], False
 
-        ### Types ###
+        # ## Types ###
         from datetime import datetime
         yield type, [int], type, [int], False
         yield type, [datetime], type, [datetime], False
@@ -534,14 +534,14 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         yield (InterfaceClass, [DummyInterface],
                InterfaceClass, [DummyInterface], False)
 
-        ### Enums ###
+        # ## Enums ###
 
         DummyEnum = common_serialization.DummyEnum
 
         yield DummyEnum, [DummyEnum.a], DummyEnum, [DummyEnum.a], False
         yield DummyEnum, [DummyEnum.c], DummyEnum, [DummyEnum.c], False
 
-        ### External References ###
+        # ## External References ###
 
         if freezing:
             identifier = (self.ext_val.type_name, id(self.ext_val))
@@ -554,7 +554,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
             yield (common_serialization.SerializableDummy, [self.ext_val],
                    pytree.External, [pytree.External(identifier)], False)
 
-        ### Freezing-Only Types ###
+        # ## Freezing-Only Types ###
 
         if freezing:
             mod_name = "tests.test_common_serialization_pytree"
@@ -569,7 +569,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
             o = DummyClass()
             yield types.FunctionType, [o.dummy_method], str, [meth_name], True
 
-        #### Basic mutable types plus tuples ###
+        # ### Basic mutable types plus tuples ###
 
         # Exception for empty tuple singleton
         yield tuple, [()], tuple, [()], False
@@ -582,24 +582,24 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         yield dict, [{1: 2, 3: 4}], dict, [{1: 2, 3: 4}], True
 
         # Container with different types
-        yield (tuple, [(0.1, 2**45, "a", u"z", False, None,
+        yield (tuple, [(0.1, 2 ** 45, "a", u"z", False, None,
                         (1, ), [2], set([3]), {4: 5})],
-               tuple, [(0.1, 2**45, "a", u"z", False, None,
+               tuple, [(0.1, 2 ** 45, "a", u"z", False, None,
                         (1, ), [2], set([3]), {4: 5})], True)
-        yield (list, [[0.1, 2**45, "a", u"z", False, None,
+        yield (list, [[0.1, 2 ** 45, "a", u"z", False, None,
                        (1, ), [2], set([3]), {4: 5}]],
-               list, [[0.1, 2**45, "a", u"z", False, None,
+               list, [[0.1, 2 ** 45, "a", u"z", False, None,
                        (1, ), [2], set([3]), {4: 5}]], True)
-        yield (set, [set([0.1, 2**45, "a", u"z", False, None, (1)])],
-               set, [set([0.1, 2**45, "a", u"z", False, None, (1)])], True)
-        yield (dict, [{0.2: 0.1, 2**42: 2**45, "x": "a", u"y": u"z",
+        yield (set, [set([0.1, 2 ** 45, "a", u"z", False, None, (1)])],
+               set, [set([0.1, 2 ** 45, "a", u"z", False, None, (1)])], True)
+        yield (dict, [{0.2: 0.1, 2 ** 42: 2 ** 45, "x": "a", u"y": u"z",
                        True: False, None: None, (-1, ): (1, ),
                        8: [2], 9: set([3]), 10: {4: 5}}],
-               dict, [{0.2: 0.1, 2**42: 2**45, "x": "a", u"y": u"z",
+               dict, [{0.2: 0.1, 2 ** 42: 2 ** 45, "x": "a", u"y": u"z",
                        True: False, None: None, (-1, ): (1, ),
                        8: [2], 9: set([3]), 10: {4: 5}}], True)
 
-        ### References and Dereferences ###
+        # ## References and Dereferences ###
 
         Ref = pytree.Reference
         Deref = pytree.Dereference
@@ -690,7 +690,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
         c = [a, b]
         d = [a, b, c]
         yield (list, [d], list, [[Ref(1, []), Ref(2, [Deref(1)]),
-                                 [Deref(1), Deref(2)]]], True)
+                                  [Deref(1), Deref(2)]]], True)
 
         # Complex structure without dict or set
         a = ()
@@ -729,7 +729,7 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
                [Inst({"str": "dummy",
                       "unicode": u"dummy",
                       "int": 42,
-                      "long": 2**66,
+                      "long": 2 ** 66,
                       "float": 3.1415926,
                       "bool": True,
                       "none": None,
@@ -759,23 +759,24 @@ class PyTreeConvertersTest(common_serialization.ConverterTest):
 
         yield (Klass, [a], Ref,
                [Ref(1, Inst({"ref":
-                    Inst({"ref": Deref(1)})}))], True)
+                             Inst({"ref": Deref(1)})}))], True)
 
         yield (Klass, [b], Ref,
                [Ref(1, Inst({"ref":
-                    Inst({"ref": Deref(1)})}))], True)
+                             Inst({"ref": Deref(1)})}))], True)
 
         yield (Klass, [c], Ref,
                [Ref(1, Inst({"ref": Deref(1)}))], True)
 
         yield (list, [[a, b]], list,
                [[Ref(1, Inst({"ref":
-                    Ref(2, Inst({"ref": Deref(1)}))})), Deref(2)]], True)
+                              Ref(2, Inst({"ref": Deref(1)}))})),
+                 Deref(2)]], True)
 
         yield (list, [[a, c]], list,
                [[Ref(1, Inst({"ref":
-                    Inst({"ref": Deref(1)})})),
-                    Ref(2, Inst({"ref": Deref(2)}))]], True)
+                              Inst({"ref": Deref(1)})})),
+                 Ref(2, Inst({"ref": Deref(2)}))]], True)
 
         yield (list, [[a, [a, [a, [a]]]]], list,
                [[Ref(1, Inst({'ref': Inst({'ref': Deref(1)})})),

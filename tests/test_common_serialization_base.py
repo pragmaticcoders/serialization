@@ -25,7 +25,6 @@
 
 from pragmalizator.common import serialization
 from pragmalizator.common.serialization import base
-from pragmalizator.interface.serialization import *
 
 from . import common
 

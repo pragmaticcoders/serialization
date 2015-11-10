@@ -24,19 +24,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # See "LICENSE.GPL" in the source distribution for more information.
-import itertools
 import types
-from past.types import long
+from past.types import long, unicode
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from pragmalizator.common import reflect, serialization, formatable
-from pragmalizator.common.serialization import base, json
-from pragmalizator.interface.serialization import *
+from pragmalizator.common import reflect, serialization
+from pragmalizator.common.serialization import json
 
 from . import common_serialization
-from . import common
 
 
 @serialization.register
@@ -63,7 +60,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         self.unserializer = json.Unserializer(externalizer=ext)
 
     def convertion_table(self, capabilities, freezing):
-        ### Basic immutable types ###
+        # ## Basic immutable types ###
 
         yield str, [""], str, ['[".enc", "UTF8", ""]',
                                '[".bytes", ""]'], False
@@ -77,8 +74,8 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         yield [int, long], [42], str, ["42"], False
         yield [int, long], [-42], str, ["-42"], False
         yield [int, long], [long(0)], str, ["0"], False
-        yield long, [2**72], str, ["4722366482869645213696"], False
-        yield long, [-2**72], str, ["-4722366482869645213696"], False
+        yield long, [2 ** 72], str, ["4722366482869645213696"], False
+        yield long, [-2 ** 72], str, ["-4722366482869645213696"], False
         yield float, [0.0], str, ["0.0"], False
         yield float, [3.141], str, ["3.141"], False
         yield float, [-3.141], str, ["-3.141"], False
@@ -88,7 +85,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         yield bool, [False], str, ["false"], False
         yield type(None), [None], str, ["null"], False
 
-        ### Types ###
+        # ## Types ###
         from datetime import datetime
         yield type, [int], str, ['[".type", "__builtin__.int"]'], False
         yield (type, [datetime],
@@ -100,7 +97,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
                str, ['[".type", "tests.test_common_serialization_json.'
                      'DummyInterface"]'], False)
 
-        ### Enums ###
+        # ## Enums ###
 
         DummyEnum = common_serialization.DummyEnum
 
@@ -111,7 +108,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
                str, ['[".enum", "tests.common_serialization.'
                      'DummyEnum.c"]'], False)
 
-        ### External References ###
+        # ## External References ###
 
         if freezing:
             name = '[".enc", "UTF8", "%s"]' % self.ext_val.type_name
@@ -126,7 +123,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
             yield (common_serialization.SerializableDummy, [self.ext_val],
                    str, ['[".ext", %s]' % identifier], False)
 
-        ### Freezing-Only Types ###
+        # ## Freezing-Only Types ###
 
         if freezing:
             mod_name = "tests.test_common_serialization_json"
@@ -141,7 +138,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
             o = DummyClass()
             yield types.FunctionType, [o.dummy_method], str, [meth_name], True
 
-        #### Basic mutable types plus tuples ###
+        # ### Basic mutable types plus tuples ###
 
         # Exception for empty tuple singleton
         yield tuple, [()], str, ['[".tuple"]'], False
@@ -163,7 +160,7 @@ class JSONConvertersTest(common_serialization.ConverterTest):
                str, ['[0.11, [".enc", "UTF8", "a"], "z", false, null, '
                      '[".tuple", 1], [2], [".set", 3], {"4": 5}]'], True)
 
-        ### References and Dereferences ###
+        # ## References and Dereferences ###
 
         # Simple reference in list
         a = []
@@ -190,14 +187,15 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         # is not predictable all possibilities have to be tested
         a = {}
         b = {"1": a, "2": a, "3": a}
-        yield (dict, [b], str,
+        yield (
+            dict, [b], str,
             ['{"1": [".ref", 1, {}], "2": [".deref", 1], "3": [".deref", 1]}',
              '{"1": [".ref", 1, {}], "3": [".deref", 1], "2": [".deref", 1]}',
              '{"2": [".ref", 1, {}], "1": [".deref", 1], "3": [".deref", 1]}',
              '{"2": [".ref", 1, {}], "3": [".deref", 1], "1": [".deref", 1]}',
              '{"3": [".ref", 1, {}], "1": [".deref", 1], "2": [".deref", 1]}',
              '{"3": [".ref", 1, {}], "2": [".deref", 1], "1": [".deref", 1]}'],
-               True)
+            True)
 
         # Simple dereference in set.
         a = ()

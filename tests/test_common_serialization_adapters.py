@@ -23,9 +23,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from pragmalizator.common import serialization, adapter
 from pragmalizator.common.serialization import base, sexp, adapters
-
 from pragmalizator.interface.serialization import *
 
 from . import common
@@ -79,13 +77,13 @@ class TestAdapters(common.TestCase):
 
     def testUnserializeUnicodeError(self):
         a = ('{'
-                '".state": [".tuple", ['
-                    '".type", "exceptions.UnicodeEncodeError"], '
-                    '[".tuple", "ascii", '
-                        '"DataX does not confirm the data for '
-                        'XXXX/YYYYYYY/1234. '
-                        'Match code=0", 44, 46, "ordinal not in range(128)"],'
-                        ' {}], '
-                '".type": "exception"}')
+             '".state": [".tuple", ['
+             '".type", "exceptions.UnicodeEncodeError"], '
+             '[".tuple", "ascii", '
+             '"DataX does not confirm the data for '
+             'XXXX/YYYYYYY/1234. '
+             'Match code=0", 44, 46, "ordinal not in range(128)"],'
+             ' {}], '
+             '".type": "exception"}')
         ex = self.unserializer.convert(a)
-        str(ex) # this line was causing seg fault before the fix
+        str(ex)  # this line was causing seg fault before the fix
