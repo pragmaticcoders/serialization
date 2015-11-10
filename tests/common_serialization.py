@@ -37,7 +37,7 @@ from zope.interface.interface import InterfaceClass
 from unittest import SkipTest
 
 from pragmalizator.common import serialization, enum
-from pragmalizator.common.serialization import base, adapters
+from pragmalizator.common.serialization import base
 from pragmalizator.interface.serialization import Capabilities, ISnapshotable
 from pragmalizator.interface.serialization import ISerializable
 
@@ -63,7 +63,7 @@ class SnapshotableDummy(object):
     def __init__(self, value):
         self.value = value
 
-    ### ISnapshotable ###
+    # ## ISnapshotable ###
 
     def snapshot(self):
         return self.value
@@ -77,7 +77,7 @@ class SerializableDummy(serialization.Serializable):
         self.str = "dummy"
         self.unicode = u"dummy"
         self.int = 42
-        self.long = 2**66
+        self.long = 2 ** 66
         self.float = 3.1415926
         self.bool = True
         self.none = None
@@ -162,7 +162,7 @@ class ConverterTest(common.TestCase):
 
     def setUp(self):
         self.ext_val = SerializableDummy()
-        self.ext_val.str = "externalized" # Just for it be different
+        self.ext_val.str = "externalized"  # Just for it be different
         self.ext_snap_val = SnapshotableDummy(42)
 
         self.externalizer = base.Externalizer()
@@ -286,9 +286,9 @@ class ConverterTest(common.TestCase):
 
                 # Check type
                 self.assertTrue(isinstance(result, exp_types),
-                                 "Converted value with type %s instead "
-                                 "of %s:\nVALUE: %r"
-                                 % (type(result).__name__,
+                                "Converted value with type %s instead "
+                                "of %s:\nVALUE: %r"
+                                % (type(result).__name__,
                                     exp_type_names, result))
 
                 # Check it's a copy, if required
@@ -356,12 +356,12 @@ class ConverterTest(common.TestCase):
                    (Capabilities.long_values, Capabilities.long_keys,
                     [int, long], [long(0)]),
                    (Capabilities.long_values, Capabilities.long_keys,
-                    long, [-2**66, 2**66]),
+                    long, [-2 ** 66, 2 ** 66]),
                    (Capabilities.float_values, Capabilities.float_keys,
-                   float, [0.0, 3.14159, -3.14159, 1.23145e23, 1.23145e-23]),
+                    float, [0.0, 3.14159, -3.14159, 1.23145e23, 1.23145e-23]),
                    (Capabilities.str_values, Capabilities.str_keys,
                     str, ["", "spam"]),
-                   (Capabilities.str_values, None, # May not be valid for keys
+                   (Capabilities.str_values, None,  # May not be valid for keys
                     str, ["\x00", "\n", "\xFF"]),
                    (Capabilities.unicode_values, Capabilities.unicode_keys,
                     unicode, [u"", u"hétérogénéité", u"\x00\xFF\n"]),
@@ -418,10 +418,10 @@ class ConverterTest(common.TestCase):
             if Capabilities.list_values not in capabilities:
                 del o.list
             if (Capabilities.set_values not in capabilities
-                or Capabilities.int_keys not in capabilities):
+                    or Capabilities.int_keys not in capabilities):
                 del o.set
             if (Capabilities.dict_values not in capabilities
-                or Capabilities.int_keys not in capabilities):
+                    or Capabilities.int_keys not in capabilities):
                 del o.dict
             return o
 
@@ -437,7 +437,7 @@ class ConverterTest(common.TestCase):
 
             o.str = "spam"
             o.unicode = "fúúúú"
-            o.long = 2**44
+            o.long = 2 ** 44
             o.float = 2.7182818284
             o.bool = False
             o.list = ['a', 'b', 'c']
@@ -488,7 +488,7 @@ class ConverterTest(common.TestCase):
             yield DummyEnum, DummyEnum.c, False
 
         def iter_tuples(desc, stop=False, immutable=False):
-            yield tuple, (), False # Exception for empty tuple singleton
+            yield tuple, (), False  # Exception for empty tuple singleton
             # A tuple for each possible values
             for v in iter_all_values(desc, stop, immutable):
                 yield tuple, tuple([v]), True
@@ -510,10 +510,10 @@ class ConverterTest(common.TestCase):
                 yield set, set([v]), True
             # Enums cannot be mixed with other values
             yield (set, set([v for v in iter_all_keys(desc, stop)
-                            if isinstance(v, enum.Enum)]), True)
+                             if isinstance(v, enum.Enum)]), True)
             # One big set with everything supported in it
             yield (set, set([v for v in iter_all_keys(desc, stop)
-                            if not isinstance(v, enum.Enum)]), True)
+                             if not isinstance(v, enum.Enum)]), True)
 
         def iter_dicts(desc, stop=False):
             yield dict, {}, True
@@ -535,7 +535,7 @@ class ConverterTest(common.TestCase):
                         except StopIteration:
                             # Loop back to the first value
                             values = iter(iter_all_values(desc, stop))
-                            v = values.next() # At least there is one value
+                            v = values.next()  # At least there is one value
                             done = True
                         d[k] = v
                 yield dict, d, True
@@ -620,22 +620,22 @@ class ConverterTest(common.TestCase):
                 yield dict, [a], True
 
                 if (Capabilities.tuple_keys in capabilities
-                    and Capabilities.list_values in capabilities):
-                        a = (K, L)
+                        and Capabilities.list_values in capabilities):
+                    a = (K, L)
 
-                        # Dereference in dictionary keys.
-                        yield list, [[a, {a: X}]], True
+                    # Dereference in dictionary keys.
+                    yield list, [[a, {a: X}]], True
 
-                        # Reference in dictionary keys.
-                        yield list, [[{a: Y}, a]], True
+                    # Reference in dictionary keys.
+                    yield list, [[{a: Y}, a]], True
 
-                        # Multiple reference in dictionary keys
-                        a = (K, L)
-                        yield dict, [{(K, a): X, (L, a): Y}], True
+                    # Multiple reference in dictionary keys
+                    a = (K, L)
+                    yield dict, [{(K, a): X, (L, a): Y}], True
 
             if (Capabilities.set_values in capabilities
-                and Capabilities.tuple_keys in capabilities
-                and Capabilities.list_values in capabilities):
+                    and Capabilities.tuple_keys in capabilities
+                    and Capabilities.list_values in capabilities):
 
                 a = (K, L)
                 # Dereference in set.
@@ -648,12 +648,11 @@ class ConverterTest(common.TestCase):
                 b = set([(K, a), (L, a)])
                 yield set, [b], True
 
-
             if (Capabilities.tuple_values in capabilities
-                and Capabilities.list_values in capabilities
-                and Capabilities.dict_values in capabilities
-                and Capabilities.tuple_keys in capabilities
-                and Capabilities.list_values in capabilities):
+                    and Capabilities.list_values in capabilities
+                    and Capabilities.dict_values in capabilities
+                    and Capabilities.tuple_keys in capabilities
+                    and Capabilities.list_values in capabilities):
 
                 # Complex structure
                 a = (K, L)
@@ -665,7 +664,7 @@ class ConverterTest(common.TestCase):
                 d2 = [a, b2, c2]
                 e = (b, c, d)
                 e2 = [b2, c2, e]
-                c2[e] = e2 # Make a cycle
+                c2[e] = e2  # Make a cycle
                 yield dict, [{b: b2, c: c2, d: d2, e: e2}], True
 
             if Capabilities.instance_values in capabilities:
@@ -713,7 +712,7 @@ class ConverterTest(common.TestCase):
         the object just have to be equals.'''
         return self._safe_equal(a, b, 0, {}, {}, generic_int)
 
-    ### Private Methods ###
+    # ## Private Methods ###
 
     def _exp_types(self, val):
         if isinstance(val, (list, tuple)):
@@ -857,7 +856,7 @@ class ConverterTest(common.TestCase):
         if expected is None:
             self.assertEqual(expected, value)
         elif isinstance(expected, (list, tuple)):
-            if expected != (): # Special case for tuple singleton
+            if expected != ():  # Special case for tuple singleton
                 self.assertIsNot(expected, value)
 
             self.assertEqual(len(expected), len(value))
