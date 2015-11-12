@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Pragmalizator'
+project = u'Serialization'
 copyright = u'2015, Mateusz Probachta'
 
 # The version info for the project you're documenting, acts as replacement
@@ -209,7 +209,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'serialization.tex',
-     u'Pragmalizator Documentation',
+     u'Serialization Documentation',
      u'Mateusz Probachta', 'manual'),
 ]
 
@@ -240,7 +240,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'serialization',
-     u'Pragmalizator Documentation',
+     u'Serialization Documentation',
      [u'Mateusz Probachta'], 1)
 ]
 
@@ -255,7 +255,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'serialization',
-     u'Pragmalizator Documentation',
+     u'Serialization Documentation',
      u'Mateusz Probachta',
      'serialization',
      'One line description of project.',

@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use Pragmalizator in a project::
+To use Serialization in a project::
 
     import serialization

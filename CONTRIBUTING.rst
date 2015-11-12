@@ -36,8 +36,8 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Pragmalizator could always use more documentation, whether as part of the
-official Pragmalizator docs, in docstrings, or even on the web in blog posts,
+Serialization could always use more documentation, whether as part of the
+official Serialization docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback

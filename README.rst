@@ -1,5 +1,5 @@
 ===============================
-Pragmalizator
+Serialization
 ===============================
 
 .. image:: https://img.shields.io/travis/beetleman/serialization.svg
