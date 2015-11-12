@@ -20,6 +20,8 @@
 
 # Headers in this file shall remain intact.
 
+from __future__ import absolute_import
+
 from zope.interface import Interface, Attribute
 
 from serialization.interface import protocols

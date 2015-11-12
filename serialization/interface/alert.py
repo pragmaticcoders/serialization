@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from zope.interface import Interface, Attribute
 from serialization.common import enum
 

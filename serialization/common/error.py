@@ -19,8 +19,12 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
+
+from __future__ import absolute_import
+
 from future import standard_library
 standard_library.install_aliases()
+
 from builtins import map
 
 import re

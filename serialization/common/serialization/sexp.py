@@ -20,6 +20,8 @@
 
 # Headers in this file shall remain intact.
 
+from __future__ import absolute_import
+
 from past.types import long
 from builtins import bytes
 

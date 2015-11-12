@@ -19,6 +19,9 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
+
+from __future__ import absolute_import
+
 from zope.interface import adapter, interface, declarations
 
 from serialization.common import decorator

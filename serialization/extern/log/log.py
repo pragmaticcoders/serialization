@@ -17,6 +17,8 @@ different projects to provide a controllable logging mechanism.
 Maintainer: U{Thomas Vander Stichele <thomas at apestaart dot org>}
 """
 
+from __future__ import absolute_import
+
 import errno
 import sys
 import os

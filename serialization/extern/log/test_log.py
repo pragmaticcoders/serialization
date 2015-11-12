@@ -19,6 +19,8 @@
 
 # Headers in this file shall remain intact.
 
+from __future__ import absolute_import
+
 import logging
 
 from twisted.trial import unittest

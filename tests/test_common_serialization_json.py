@@ -24,6 +24,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # See "LICENSE.GPL" in the source distribution for more information.
+
+from __future__ import absolute_import
+
 import types
 from past.types import long, unicode
 

@@ -3,6 +3,8 @@
 #
 # From http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/475116
 
+from __future__ import absolute_import
+
 import re
 import sys
 

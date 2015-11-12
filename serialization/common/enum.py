@@ -22,6 +22,8 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+from __future__ import absolute_import
+
 import types
 from future.utils import with_metaclass
 

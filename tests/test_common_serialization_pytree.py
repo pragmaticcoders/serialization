@@ -23,6 +23,8 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 # Headers in this file shall remain intact.
 
+from __future__ import absolute_import
+
 import types
 from past.types import long, unicode
 from future.utils import with_metaclass
