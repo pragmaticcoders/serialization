@@ -25,8 +25,8 @@
 
 from __future__ import absolute_import
 
-from serialization.common import serialization
-from serialization.common.serialization import base
+import serialization
+from serialization import base
 
 from . import common
 

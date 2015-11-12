@@ -25,7 +25,7 @@
 
 from __future__ import absolute_import
 
-from serialization.common.serialization import base, sexp, adapters
+from serialization import base, sexp, adapters
 from serialization.interface.serialization import *
 
 from . import common

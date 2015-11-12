@@ -33,8 +33,10 @@ from past.types import long, unicode
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from serialization.common import reflect, serialization
-from serialization.common.serialization import json
+from serialization.common import reflect
+
+import serialization
+from serialization import json_ as json
 
 from . import common_serialization
 

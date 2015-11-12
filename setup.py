@@ -35,8 +35,6 @@ setup(
     packages=[
         'serialization',
     ],
-    package_dir={'serialization':
-                 'serialization'},
     include_package_data=True,
     install_requires=requirements,
     license="ISCL",

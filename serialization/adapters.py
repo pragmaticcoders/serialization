@@ -24,8 +24,9 @@ from __future__ import absolute_import
 
 from zope.interface.declarations import provider, implementer
 
-from serialization.common import serialization, adapter, error
-from serialization.common.serialization import base
+from serialization.common import adapter, error
+from serialization import base
+import serialization
 
 from serialization.interface.serialization import IRestorator, ISerializable
 

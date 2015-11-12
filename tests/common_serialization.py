@@ -41,8 +41,9 @@ from zope.interface.interface import InterfaceClass
 
 from unittest import SkipTest
 
-from serialization.common import serialization, enum
-from serialization.common.serialization import base
+import serialization
+from serialization.common import enum
+from serialization import base
 from serialization.interface.serialization import Capabilities, ISnapshotable
 from serialization.interface.serialization import ISerializable
 

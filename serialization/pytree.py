@@ -30,7 +30,7 @@ from past.types import unicode, long
 from serialization.common import enum, reflect
 from serialization.interface.serialization import *
 
-from serialization.common.serialization import base
+from serialization import base
 
 
 @implementer(IExternal)
@@ -175,7 +175,7 @@ class Serializer(base.Serializer):
         >> o = Serializable()
         >> o.foo = 42
         >> print TreeSerializer().convert(o)
-        <Instance serialization.common.serialization.Serializable: {"foo": 42}>
+        <Instance serialization.Serializable: {"foo": 42}>
 
     '''
 

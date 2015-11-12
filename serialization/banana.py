@@ -27,7 +27,7 @@ from cStringIO import StringIO
 from twisted.spread import banana
 
 from serialization.common import reflect
-from serialization.common.serialization import sexp, base
+from serialization import sexp, base
 from serialization.interface.serialization import Capabilities
 
 

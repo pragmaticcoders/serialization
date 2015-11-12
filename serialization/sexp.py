@@ -27,7 +27,7 @@ from builtins import bytes
 
 from serialization.common import reflect
 
-from serialization.common.serialization import base
+from serialization import base
 
 UNICODE_ATOM = "unicode"
 UNICODE_FORMAT_ATOM = "UTF-8"
