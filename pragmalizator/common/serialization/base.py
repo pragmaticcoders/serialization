@@ -619,7 +619,8 @@ class Serializer(object):
                                 caps, freezing)
         items = value.items()
         if freezing:
-            items = sorted(items, key=operator.itemgetter(0))
+            # int(1) > str(2) rase error on PY3
+            items = sorted(items, key=lambda i: str(i[0]))
         return self.pack_dict, [self.flatten_item(i, caps, freezing)
                                 for i in items]
 
