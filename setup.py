@@ -27,7 +27,7 @@ test_requirements = [
 setup(
     name='serialization',
     version='0.0.1',
-    description="The ultimate serializer",
+    description="Smart serialization library for Python language",
     long_description=readme + '\n\n' + history,
     author="Mateusz Probachta",
     author_email='mateusz.probachta@pragmaticcoders.com',

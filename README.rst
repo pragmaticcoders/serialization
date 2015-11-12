@@ -9,7 +9,7 @@ Serialization
         :target: https://pypi.python.org/pypi/serialization
 
 
-The ultimate serializer
+Smart serialization library for Python language
 
 * Free software: ISC license
 * Documentation: https://serialization.readthedocs.org.
