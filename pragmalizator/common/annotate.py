@@ -19,6 +19,8 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
+from future.utils import with_metaclass
+
 from pragmalizator.common import reflect
 
 _CLASS_ANNOTATIONS_ATTR = "_class_annotations"
@@ -75,8 +77,7 @@ class MetaAnnotable(type):
         super(MetaAnnotable, cls).__init__(name, bases, dct)
 
 
-class Annotable(object):
-    __metaclass__ = MetaAnnotable
+class Annotable(with_metaclass(MetaAnnotable, object)):
     __slots__ = () # To support sub-classes without __dict__
 
 

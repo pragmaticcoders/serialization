@@ -25,7 +25,10 @@
 
 import itertools
 import types
+
 from past.types import long, unicode
+
+from future.utils import with_metaclass, PY3
 
 from builtins import range
 from builtins import object
@@ -47,6 +50,14 @@ from . import common
 def qual(clazz):
     """Return full import path of a class."""
     return clazz.__module__ + '.' + clazz.__name__
+
+
+if PY3:
+    type_of__dict__ = types.MappingProxyType
+    skipped_in__dict__ = ('__dict__', '__weakref__')
+else:
+    type_of__dict__ = types.DictProxyType
+    skipped_in__dict__ = tuple()
 
 
 class DummyEnum(enum.Enum):
@@ -128,9 +139,14 @@ class TestTypeSerializationDummy(object):
 class MetaTestTypeSerializationDummy(type):
     pass
 
-
-class TestTypeSerializationDummyWithMeta(object):
-    __metaclass__ = MetaTestTypeSerializationDummy
+# TODO: figure out why this works:
+if PY3:
+    class TestTypeSerializationDummyWithMeta(
+            with_metaclass(MetaTestTypeSerializationDummy, object)):
+        pass
+else:
+    class TestTypeSerializationDummyWithMeta(object):
+        __metaclass__ = MetaTestTypeSerializationDummy
 
 
 class ConverterTest(common.TestCase):
@@ -725,7 +741,7 @@ class ConverterTest(common.TestCase):
             return tuple(val), type_names
         return (val, ), val.__name__
 
-    def _safe_equal(self, a, b, idx, arefs, brefs, gint):
+    def _safe_equal(self, a, b, idx, arefs, brefs, gint, is__dict__=False):
         if a is b:
             return True
 
@@ -787,11 +803,16 @@ class ConverterTest(common.TestCase):
                 idx += 1
             return True
 
-        if isinstance(a, (dict, types.DictProxyType)):
+        if isinstance(a, (dict, type_of__dict__)):
             if len(a) != len(b):
                 return False
             for k1, v1 in a.items():
+                # skipping this elements in __dict__
+                if is__dict__ and k1 in skipped_in__dict__:
+                    continue
                 for k2, v2 in b.items():
+                    if is__dict__ and k1 in skipped_in__dict__:
+                        continue
                     # We keep a copy of copy of the reference dictionaries
                     # because if the comparison fail we don't want to pollute
                     # them with invalid references
@@ -812,7 +833,8 @@ class ConverterTest(common.TestCase):
 
         if hasattr(a, "__dict__"):
             return self._safe_equal(a.__dict__, b.__dict__,
-                                    idx + 1, arefs, brefs, gint)
+                                    idx + 1, arefs, brefs, gint,
+                                    is__dict__=True)
 
         if hasattr(a, "__slots__"):
             for attr in a.__slots__:
@@ -821,7 +843,8 @@ class ConverterTest(common.TestCase):
                 if not self._safe_equal(v1, v2, idx + 1, arefs, brefs, gint):
                     return False
             return True
-
+        print(type(a), type(b))
+        import ipdb; ipdb.set_trace()
         raise RuntimeError("I don't know how to compare %r and %r" % (a, b))
 
     def _assertEqualButDifferent(self, value, expected, idx, valids, expids):

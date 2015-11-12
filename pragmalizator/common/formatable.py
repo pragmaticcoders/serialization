@@ -23,6 +23,8 @@
 # vi:si:et:sw=4:sts=4:ts=4
 import copy
 
+from future.utils import with_metaclass
+
 from pragmalizator.common import serialization, annotate
 
 
@@ -51,9 +53,8 @@ class MetaFormatable(type(serialization.Serializable),
     pass
 
 
-class Formatable(serialization.Serializable, annotate.Annotable):
-
-    __metaclass__ = MetaFormatable
+class Formatable(with_metaclass(
+        MetaFormatable, serialization.Serializable, annotate.Annotable)):
 
     @classmethod
     def __class__init__(cls, name, bases, dct):

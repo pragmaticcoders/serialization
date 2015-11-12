@@ -23,6 +23,7 @@
 # vi:si:et:sw=4:sts=4:ts=4
 
 import types
+from future.utils import with_metaclass
 
 
 class MetaEnum(type):
@@ -118,7 +119,7 @@ class MetaEnum(type):
         return cls._items.iterkeys()
 
 
-class Enum(int):
+class Enum(with_metaclass(MetaEnum, int)):
     """
     enum is an enumered type implementation in python.
 
@@ -134,8 +135,6 @@ class Enum(int):
     All the integers defined in the class are assumed to be enums and
     values cannot be duplicated
     """
-
-    __metaclass__ = MetaEnum
 
     def __new__(cls, value):
         return cls.get(value)
