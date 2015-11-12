@@ -843,8 +843,6 @@ class ConverterTest(common.TestCase):
                 if not self._safe_equal(v1, v2, idx + 1, arefs, brefs, gint):
                     return False
             return True
-        print(type(a), type(b))
-        import ipdb; ipdb.set_trace()
         raise RuntimeError("I don't know how to compare %r and %r" % (a, b))
 
     def _assertEqualButDifferent(self, value, expected, idx, valids, expids):
