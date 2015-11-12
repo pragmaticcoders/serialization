@@ -11,7 +11,7 @@ Serialization
 
 Smart serialization library for Python language
 
-* Free software: ISC license
+* Free software: MIT license
 * Documentation: https://serialization.readthedocs.org.
 
 Features
