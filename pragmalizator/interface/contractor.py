@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Attribute
 
-from pragmalizator.interface import protocols, contracts
+from serialization.interface import protocols, contracts
 
 __all__ = ["IContractorFactory", "IAgencyContractor", "IAgentContractor"]
 
@@ -78,7 +78,7 @@ class IAgentContractor(protocols.IInterested):
         '''Called by the agency when a contract matching
         the contractor has been received. Called only once.
 
-        @type  announce: L{pragmalizator.agents.message.Announcement}
+        @type  announce: L{serialization.agents.message.Announcement}
         '''
 
     def announce_expired():

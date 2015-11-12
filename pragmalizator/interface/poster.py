@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Interface, Attribute
 
-from pragmalizator.interface import protocols
+from serialization.interface import protocols
 
 __all__ = ["IPosterFactory", "IAgencyPoster", "IAgentPoster"]
 

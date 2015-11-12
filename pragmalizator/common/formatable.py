@@ -25,7 +25,7 @@ import copy
 
 from future.utils import with_metaclass
 
-from pragmalizator.common import serialization, annotate
+from serialization.common import serialization, annotate
 
 
 class Field(object):

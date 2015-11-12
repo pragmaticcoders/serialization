@@ -19,10 +19,10 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-from pragmalizator.common.serialization.base import (register, lookup,
+from serialization.common.serialization.base import (register, lookup,
                                             Registry, Snapshotable,
                                             ImmutableSerializable,
                                             Serializable, MetaSerializable,
                                             Externalizer, get_registry,
                                             freeze_tag, VersionAdapter)
-from pragmalizator.interface.serialization import *
+from serialization.interface.serialization import *

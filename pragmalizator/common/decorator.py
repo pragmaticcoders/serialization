@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 import types
 
-from pragmalizator.common import reflect
+from serialization.common import reflect
 
 """TODO: Better function mimicry."""
 

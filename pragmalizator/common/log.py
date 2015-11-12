@@ -27,7 +27,7 @@ import sys
 
 from zope.interface.declarations import implementer
 
-from pragmalizator.interface.log import ILogKeeper, ILogger, LogLevel
+from serialization.interface.log import ILogKeeper, ILogger, LogLevel
 flulog = None #dynamicaly imported from FluLogKeeper.init()
 
 verbose = os.environ.get("FEAT_VERBOSE", "NO").upper() in ("YES", "1", "TRUE")
@@ -271,7 +271,7 @@ class PythonLogKeeper(object):
 
     def __init__(self, logger):
         self._logger = logger
-        from pragmalizator.extern.log import log as flulog
+        from serialization.extern.log import log as flulog
         self._flulog = flulog
 
     def do_log(self, level, object, category, format, args,
@@ -317,9 +317,9 @@ class FluLogKeeper(object):
         if not cls._initialized:
             if path:
                 sys.stderr = open(path, 'a')
-            from pragmalizator.extern.log import log as flulog
+            from serialization.extern.log import log as flulog
             flulog.init('FEAT_DEBUG')
-            flulog.setPackageScrubList('pragmalizator', 'twisted')
+            flulog.setPackageScrubList('serialization', 'twisted')
             flulog.logTwisted()
             if get_default() is None:
                 set_default(cls())

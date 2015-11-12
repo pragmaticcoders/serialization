@@ -23,9 +23,9 @@
 from past.types import long
 from builtins import bytes
 
-from pragmalizator.common import reflect
+from serialization.common import reflect
 
-from pragmalizator.common.serialization import base
+from serialization.common.serialization import base
 
 UNICODE_ATOM = "unicode"
 UNICODE_FORMAT_ATOM = "UTF-8"

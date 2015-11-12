@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from future.utils import with_metaclass
 
-from pragmalizator.common import reflect
+from serialization.common import reflect
 
 _CLASS_ANNOTATIONS_ATTR = "_class_annotations"
 _ATTRIBUTE_INJECTIONS_ATTR = "_attribute_injections"

@@ -125,7 +125,7 @@ class Enum(with_metaclass(MetaEnum, int)):
 
     To use it, define an enum subclass like this:
 
-    >>> from pragmalizator.common.enum import Enum
+    >>> from serialization.common.enum import Enum
     >>>
     >>> class Status(Enum):
     >>>     OPEN, CLOSE = range(2)

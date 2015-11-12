@@ -39,10 +39,10 @@ from zope.interface.interface import InterfaceClass
 
 from unittest import SkipTest
 
-from pragmalizator.common import serialization, enum
-from pragmalizator.common.serialization import base
-from pragmalizator.interface.serialization import Capabilities, ISnapshotable
-from pragmalizator.interface.serialization import ISerializable
+from serialization.common import serialization, enum
+from serialization.common.serialization import base
+from serialization.interface.serialization import Capabilities, ISnapshotable
+from serialization.interface.serialization import ISerializable
 
 from . import common
 

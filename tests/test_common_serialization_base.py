@@ -23,8 +23,8 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from pragmalizator.common import serialization
-from pragmalizator.common.serialization import base
+from serialization.common import serialization
+from serialization.common.serialization import base
 
 from . import common
 

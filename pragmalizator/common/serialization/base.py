@@ -32,11 +32,11 @@ from future.utils import with_metaclass
 from future.utils import raise_
 from past.types import long, unicode
 
-from pragmalizator.common import decorator, enum, adapter, reflect, registry
-from pragmalizator.interface.serialization import ISerializable, Capabilities
-from pragmalizator.interface.serialization import ISnapshotable, IFreezer, IConverter
-from pragmalizator.interface.serialization import IRegistry, IExternalizer, IRestorator
-from pragmalizator.interface.serialization import IVersionAdapter
+from serialization.common import decorator, enum, adapter, reflect, registry
+from serialization.interface.serialization import ISerializable, Capabilities
+from serialization.interface.serialization import ISnapshotable, IFreezer, IConverter
+from serialization.interface.serialization import IRegistry, IExternalizer, IRestorator
+from serialization.interface.serialization import IVersionAdapter
 
 
 DEFAULT_CONVERTER_CAPS = set([Capabilities.int_values,

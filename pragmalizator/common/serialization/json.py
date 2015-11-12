@@ -24,10 +24,10 @@ from past.types import unicode, long
 
 import json
 
-from pragmalizator.common import reflect
-from pragmalizator.interface.serialization import Capabilities, IVersionAdapter
+from serialization.common import reflect
+from serialization.interface.serialization import Capabilities, IVersionAdapter
 
-from pragmalizator.common.serialization import base
+from serialization.common.serialization import base
 
 
 TUPLE_ATOM = u".tuple"

@@ -19,9 +19,9 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-from pragmalizator.common import enum
+from serialization.common import enum
 
-from pragmalizator.interface import protocols
+from serialization.interface import protocols
 
 __all__ = ["RequestState", "IRequestPeer"]
 

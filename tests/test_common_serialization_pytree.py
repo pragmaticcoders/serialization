@@ -30,8 +30,8 @@ from future.utils import with_metaclass
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from pragmalizator.common import serialization, reflect
-from pragmalizator.common.serialization import pytree, base
+from serialization.common import serialization, reflect
+from serialization.common.serialization import pytree, base
 
 from . import common, common_serialization
 

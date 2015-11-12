@@ -25,9 +25,9 @@ from cStringIO import StringIO
 
 from twisted.spread import banana
 
-from pragmalizator.common import reflect
-from pragmalizator.common.serialization import sexp, base
-from pragmalizator.interface.serialization import Capabilities
+from serialization.common import reflect
+from serialization.common.serialization import sexp, base
+from serialization.interface.serialization import Capabilities
 
 
 class BananaCodec(object):

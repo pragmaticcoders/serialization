@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Attribute, Interface
 
-from pragmalizator.interface import protocols
+from serialization.interface import protocols
 
 __all__ = ["ITaskFactory", "IAgencyTask", "IAgentTask", "NOT_DONE_YET"]
 

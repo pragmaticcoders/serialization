@@ -20,9 +20,9 @@
 
 # Headers in this file shall remain intact.
 from zope.interface import Interface, Attribute
-from pragmalizator.common import enum
+from serialization.common import enum
 
-from pragmalizator.database.interface import IDocument
+from serialization.database.interface import IDocument
 
 __all__ = ["IAgentFactory", "IAgencyAgent", "IAgencyAgent", "IAgent",
            "AgencyAgentState", "Access", "Address", "Storage",
@@ -70,7 +70,7 @@ class IAgentFactory(Interface):
     categories = Attribute("Dict. Access, Address and Storage")
 
     restart_strategy = Attribute(
-        "L{pragmalizator.agents.common.monitor.RestartStrategy}")
+        "L{serialization.agents.common.monitor.RestartStrategy}")
 
     def __call__(medium, *args, **kwargs):
         pass
@@ -132,8 +132,8 @@ class IAgencyAgent(Interface):
             if not observer.active():
               res = oserver.get_result()
 
-        @type fiber: L{pragmalizator.interface.fiber.IFiber}
-        @rtype: L{pragmalizator.interface.fiber.IObserver}
+        @type fiber: L{serialization.interface.fiber.IFiber}
+        @rtype: L{serialization.interface.fiber.IObserver}
         """
 
     def get_hostname():
@@ -205,7 +205,7 @@ class IAgencyAgent(Interface):
         database.
 
         @param document: Document to be saved.
-        @type document: Subclass of L{pragmalizator.agents.document.Document}
+        @type document: Subclass of L{serialization.agents.document.Document}
         @returns: Deferred called with the updated Document (id and revision
                   set)
         '''
@@ -224,7 +224,7 @@ class IAgencyAgent(Interface):
         Fetch the latest revision of the document and update it.
 
         @param document: Document to update.
-        @type document: Subclass of L{pragmalizator.agents.document.Document}.
+        @type document: Subclass of L{serialization.agents.document.Document}.
         @returns: Deferred called with the updated instance.
         '''
 
@@ -235,7 +235,7 @@ class IAgencyAgent(Interface):
         For example one can call save_document on it to bring it back.
 
         @param document: Document to be deleted.
-        @type document: Subclass of L{pragmalizator.agents.document.Document}.
+        @type document: Subclass of L{serialization.agents.document.Document}.
         @returns: Deferred called with the updated document (latest revision).
         '''
 
@@ -274,10 +274,10 @@ class IAgencyAgent(Interface):
            the map-reduce view (skips the reduce part).
         In case you want to use more features of CouchDB you should implement
         them feat.agencies.emu.database.Database, and test their intergration
-        in pragmalizator.test.integration.test_idatabase_client.
+        in serialization.test.integration.test_idatabase_client.
 
         @param factory: View factory to query.
-        @type factory: L{pragmalizator.interface.view.IViewFactory}
+        @type factory: L{serialization.interface.view.IViewFactory}
         @param options: Dictionary of parameters to pass to the query.
         @return: C{list} of the results.
         '''
@@ -472,7 +472,7 @@ class IPartner(Interface):
         '''
         Called by the monitoring agent, when he detects that the partner has
         died. If your handler is going to solve this problem return the
-        L{pragmalizator.agents.base.partners.ResponsabilityAccepted} instance.
+        L{serialization.agents.base.partners.ResponsabilityAccepted} instance.
 
         @param brothers: Same as in on_goodbye.
         @param monitor: IRecipient of monitoring agent who notified us about
@@ -499,13 +499,13 @@ class IPartner(Interface):
 class IMonitorAgent(IAgent):
     '''Point of defining this interface is to be have a interface type to
     adapt agent class to IModel without the instance checks. Without this
-    adaptation will not work after reloading the pragmalizator module.'''
+    adaptation will not work after reloading the serialization module.'''
 
 
 class IAlertAgent(IAgent):
     '''Point of defining this interface is to be have a interface type to
     adapt agent class to IModel without the instance checks. Without this
-    adaptation will not work after reloading the pragmalizator module.'''
+    adaptation will not work after reloading the serialization module.'''
 
     def get_alerts():
         '''Returns list of ReceivedAlerts representing all the services

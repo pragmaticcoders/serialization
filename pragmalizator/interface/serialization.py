@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Interface, Attribute
 
-from pragmalizator.common import enum
+from serialization.common import enum
 
 __all__ = ["IRegistry", "IRestorator",
            "ISnapshotable", "ISerializable", "IVersionAdapter",

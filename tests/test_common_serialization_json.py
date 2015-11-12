@@ -30,8 +30,8 @@ from past.types import long, unicode
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from pragmalizator.common import reflect, serialization
-from pragmalizator.common.serialization import json
+from serialization.common import reflect, serialization
+from serialization.common.serialization import json
 
 from . import common_serialization
 

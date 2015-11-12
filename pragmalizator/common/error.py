@@ -29,8 +29,8 @@ import traceback
 import types
 import sys
 
-from pragmalizator.common import log, decorator, reflect
-from pragmalizator.extern.log import log as xlog
+from serialization.common import log, decorator, reflect
+from serialization.extern.log import log as xlog
 
 
 @decorator.simple_function
@@ -221,7 +221,7 @@ def clean_traceback(tb):
     preceeding the project root.
     @param tb: C{str}
     @rtype: C{str}'''
-    prefix = __file__[:__file__.find("pragmalizator/common/error.py")]
+    prefix = __file__[:__file__.find("serialization/common/error.py")]
     regex = re.compile("(\s*File\s*\")(%s)([a-zA-Z-_\. \\/]*)(\".*)"
                        % prefix.replace("\\", "\\\\"))
 
@@ -243,7 +243,7 @@ def handle_failure(source, failure, template, *args, **kwargs):
 
     category = logger.log_category
     if category is None:
-        category = 'pragmalizator'
+        category = 'serialization'
     if failure.check(NonCritical):
         e = failure.value
         msg = failure.getErrorMessage()
@@ -275,7 +275,7 @@ def handle_exception(source, exception, template, *args, **kwargs):
 
     category = logger.log_category
     if category is None:
-        category = 'pragmalizator'
+        category = 'serialization'
     if isinstance(exception, NonCritical):
         e = exception
         msg = e.log_line_template % dict(class_name=type(exception), msg=msg)

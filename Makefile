@@ -46,7 +46,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 pragmalizator tests
+	flake8 serialization tests
 
 test:
 	python setup.py test
@@ -55,15 +55,15 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source pragmalizator setup.py test
+	coverage run --source serialization setup.py test
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs:
-	rm -f docs/pragmalizator.rst
+	rm -f docs/serialization.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ pragmalizator
+	sphinx-apidoc -o docs/ serialization
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html

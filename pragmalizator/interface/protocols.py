@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Interface, Attribute
 
-from pragmalizator.common import enum, error
+from serialization.common import enum, error
 
 __all__ = ["ProtocolFailed", "ProtocolNotCriticalError",
            "ProtocolExpired", "ProtocolCancelled",

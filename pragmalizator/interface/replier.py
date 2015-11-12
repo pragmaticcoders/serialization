@@ -19,7 +19,7 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-from pragmalizator.interface import protocols, requests
+from serialization.interface import protocols, requests
 
 __all__ = ["IReplierFactory", "IAgencyReplier", "IAgentReplier"]
 

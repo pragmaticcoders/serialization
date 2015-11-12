@@ -1,5 +1,5 @@
 from zope.interface import Interface, Attribute
-from pragmalizator.common import enum
+from serialization.common import enum
 
 
 class Severity(enum.Enum):

@@ -24,10 +24,10 @@ from zope.interface.interface import InterfaceClass
 
 from past.types import unicode, long
 
-from pragmalizator.common import enum, reflect
-from pragmalizator.interface.serialization import *
+from serialization.common import enum, reflect
+from serialization.interface.serialization import *
 
-from pragmalizator.common.serialization import base
+from serialization.common.serialization import base
 
 
 @implementer(IExternal)
@@ -172,7 +172,7 @@ class Serializer(base.Serializer):
         >> o = Serializable()
         >> o.foo = 42
         >> print TreeSerializer().convert(o)
-        <Instance pragmalizator.common.serialization.Serializable: {"foo": 42}>
+        <Instance serialization.common.serialization.Serializable: {"foo": 42}>
 
     '''
 

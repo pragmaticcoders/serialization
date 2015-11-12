@@ -20,7 +20,7 @@
 
 # Headers in this file shall remain intact.
 from zope.interface import Interface
-from pragmalizator.common import enum
+from serialization.common import enum
 
 
 __all__ = ["ExecMode", "IAgency"]
@@ -69,5 +69,5 @@ class IAgency(Interface):
     def get_config():
         '''
         Returns the agency config.
-        @rtype: pragmalizator.agencies.net.config.AgencyConfig
+        @rtype: serialization.agencies.net.config.AgencyConfig
         '''

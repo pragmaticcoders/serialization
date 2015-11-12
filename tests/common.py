@@ -23,7 +23,7 @@ import functools
 import unittest
 import sys
 
-from pragmalizator.common import log
+from serialization.common import log
 
 
 class TestCase(unittest.TestCase, log.LogProxy, log.Logger):

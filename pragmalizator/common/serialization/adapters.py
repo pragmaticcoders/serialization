@@ -21,10 +21,10 @@
 # Headers in this file shall remain intact.
 from zope.interface.declarations import provider, implementer
 
-from pragmalizator.common import serialization, adapter, error
-from pragmalizator.common.serialization import base
+from serialization.common import serialization, adapter, error
+from serialization.common.serialization import base
 
-from pragmalizator.interface.serialization import IRestorator, ISerializable
+from serialization.interface.serialization import IRestorator, ISerializable
 
 try:
     from twisted.python.failure import Failure

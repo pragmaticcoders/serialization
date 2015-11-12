@@ -25,23 +25,23 @@ test_requirements = [
 ]
 
 setup(
-    name='pragmalizator',
+    name='serialization',
     version='0.0.1',
     description="The ultimate serializer",
     long_description=readme + '\n\n' + history,
     author="Mateusz Probachta",
     author_email='mateusz.probachta@pragmaticcoders.com',
-    url='https://github.com/beetleman/pragmalizator',
+    url='https://github.com/beetleman/serialization',
     packages=[
-        'pragmalizator',
+        'serialization',
     ],
-    package_dir={'pragmalizator':
-                 'pragmalizator'},
+    package_dir={'serialization':
+                 'serialization'},
     include_package_data=True,
     install_requires=requirements,
     license="ISCL",
     zip_safe=False,
-    keywords='pragmalizator',
+    keywords='serialization',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import adapter, interface, declarations
 
-from pragmalizator.common import decorator
+from serialization.common import decorator
 
 registry = adapter.AdapterRegistry()
 

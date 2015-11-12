@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Attribute
 
-from pragmalizator.interface import protocols, requests
+from serialization.interface import protocols, requests
 
 __all__ = ["IRequesterFactory", "IAgencyRequester", "IAgentRequester"]
 

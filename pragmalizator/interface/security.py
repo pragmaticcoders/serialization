@@ -22,7 +22,7 @@
 
 from zope.interface import Interface, Attribute
 
-from pragmalizator.common import error
+from serialization.common import error
 
 
 __all__ = ["IPeerInfo"]

@@ -22,7 +22,7 @@
 
 from zope.interface import Interface, Attribute
 
-from pragmalizator.interface import protocols
+from serialization.interface import protocols
 
 __all__ = ["ICollectorFactory", "IAgencyCollector", "IAgentCollector"]
 

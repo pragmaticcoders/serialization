@@ -21,7 +21,7 @@
 # Headers in this file shall remain intact.
 from zope.interface import Attribute
 
-from pragmalizator.interface import protocols, contracts
+from serialization.interface import protocols, contracts
 
 __all__ = ["IManagerFactory", "IAgencyManager", "IAgentManager"]
 
@@ -45,10 +45,10 @@ class IAgencyManager(contracts.IContractPeer):
         Reject the message.
 
         @param bid: The bid message we are rejecting
-        @type bid: pragmalizator.agents.message.BidMessage
+        @type bid: serialization.agents.message.BidMessage
         @param rejection: Optional. Rejection message. It can be constructed by
                           the agency if not specified.
-        @type rejection: pragmalizator.agents.message.Rejection
+        @type rejection: serialization.agents.message.Rejection
         '''
 
     def grant(grants):
