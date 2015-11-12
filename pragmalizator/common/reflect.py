@@ -22,6 +22,7 @@
 import inspect
 import sys
 import types
+from future.utils import PY3
 
 from zope.interface.interface import InterfaceClass
 
@@ -33,7 +34,7 @@ def canonical_name(obj):
     if isinstance(obj, (type, types.FunctionType, InterfaceClass)):
         return _canonical_type(obj)
 
-    if isinstance(obj, types.NoneType):
+    if isinstance(obj, type(None)):
         return _canonical_none(obj)
 
     if isinstance(obj, types.BuiltinFunctionType):
@@ -132,7 +133,7 @@ def formatted_function_name(function):
 
 
 def _canonical_type(obj):
-    return obj.__module__ + "." + obj.__name__
+    return obj.__module__ + "." + getattr(obj, '__qualname__', obj.__name__)
 
 
 def _canonical_none(obj):
@@ -140,6 +141,8 @@ def _canonical_none(obj):
 
 
 def _canonical_method(obj):
+    if PY3:
+        return _canonical_type(obj)
     return _canonical_type(obj.im_class) + "." + obj.__name__
 
 
