@@ -194,7 +194,7 @@ class ConverterTest(common.TestCase):
     @classmethod
     def setUpClass(cls):
         if cls is ConverterTest:
-            cls.abstract = True
+            cls.skipBaseClass()
         super(ConverterTest, cls).setUpClass()
 
     def testUnserialization(self):

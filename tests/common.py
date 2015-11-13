@@ -46,11 +46,15 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
 
     @classmethod
     def setUpClass(cls):
-        if cls is TestCase or hasattr(cls, 'abstract'):
-            raise unittest.SkipTest(
-                "Skip {} tests, it's a base class".format(cls)
-            )
+        if cls is TestCase:
+            cls.skipBaseClass()
         super(TestCase, cls).setUpClass()
+
+    @classmethod
+    def skipBaseClass(cls):
+        raise unittest.SkipTest(
+            "Skip {} tests, it's a base class".format(cls)
+        )
 
     def assert_not_skipped(self):
         if self.skip_coverage and sys.gettrace():
