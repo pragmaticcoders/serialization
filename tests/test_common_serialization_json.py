@@ -28,6 +28,8 @@
 from __future__ import absolute_import
 
 import types
+from itertools import permutations
+
 from past.types import long, unicode
 
 from zope.interface import Interface
@@ -192,14 +194,19 @@ class JSONConvertersTest(common_serialization.ConverterTest):
         # is not predictable all possibilities have to be tested
         a = {}
         b = {"1": a, "2": a, "3": a}
+
+        # generate all excepted resoults
+        resoults = []
+        for p in permutations([1, 2, 3]):
+            resoult_parts = [tml % dec for dec, tml
+                             in zip(p, ('"%d": [".ref", 1, {}]',
+                                        '"%d": [".deref", 1]',
+                                        '"%d": [".deref", 1]',))]
+            resoults.extend(
+                ['{%s}' % ', '.join(p) for p in permutations(resoult_parts)])
         yield (
             dict, [b], str,
-            ['{"1": [".ref", 1, {}], "2": [".deref", 1], "3": [".deref", 1]}',
-             '{"1": [".ref", 1, {}], "3": [".deref", 1], "2": [".deref", 1]}',
-             '{"2": [".ref", 1, {}], "1": [".deref", 1], "3": [".deref", 1]}',
-             '{"2": [".ref", 1, {}], "3": [".deref", 1], "1": [".deref", 1]}',
-             '{"3": [".ref", 1, {}], "1": [".deref", 1], "2": [".deref", 1]}',
-             '{"3": [".ref", 1, {}], "2": [".deref", 1], "1": [".deref", 1]}'],
+            resoults,
             True)
 
         # Simple dereference in set.
