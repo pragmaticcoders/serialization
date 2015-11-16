@@ -378,9 +378,9 @@ class ConverterTest(common.TestCase):
                     long, [-2 ** 66, 2 ** 66]),
                    (Capabilities.float_values, Capabilities.float_keys,
                     float, [0.0, 3.14159, -3.14159, 1.23145e23, 1.23145e-23]),
-                   (Capabilities.str_values, Capabilities.str_keys,
+                   (Capabilities.bytes_values, Capabilities.str_keys,
                     str, ["", "spam"]),
-                   (Capabilities.str_values, None,  # May not be valid for keys
+                   (Capabilities.bytes_values, None,  # May not be valid for keys
                     str, ["\x00", "\n", "\xFF"]),
                    (Capabilities.unicode_values, Capabilities.unicode_keys,
                     unicode, [u"", u"hétérogénéité", u"\x00\xFF\n"]),
@@ -424,7 +424,7 @@ class ConverterTest(common.TestCase):
                 del o.long
             if Capabilities.float_values not in capabilities:
                 del o.float
-            if Capabilities.str_values not in capabilities:
+            if Capabilities.bytes_values not in capabilities:
                 del o.str
             if Capabilities.unicode_values not in capabilities:
                 del o.unicode

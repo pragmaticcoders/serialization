@@ -53,7 +53,7 @@ JSON_CONVERTER_CAPS = set([Capabilities.int_values,
                            Capabilities.long_values,
                            Capabilities.enum_values,
                            Capabilities.float_values,
-                           Capabilities.str_values,
+                           Capabilities.bytes_values,
                            Capabilities.unicode_values,
                            Capabilities.bool_values,
                            Capabilities.none_values,
@@ -105,7 +105,7 @@ class PreSerializer(base.Serializer):
         # JSON do not support tuple so we just fake it
         return [TUPLE_ATOM] + data
 
-    def pack_str(self, data):
+    def pack_bytes(self, data):
         # we try to decode the string from default encoding
         try:
             value = data.decode(DEFAULT_ENCODING)

@@ -45,7 +45,7 @@ DEFAULT_CONVERTER_CAPS = set([Capabilities.int_values,
                               Capabilities.enum_values,
                               Capabilities.long_values,
                               Capabilities.float_values,
-                              Capabilities.str_values,
+                              Capabilities.bytes_values,
                               Capabilities.unicode_values,
                               Capabilities.bool_values,
                               Capabilities.none_values,
@@ -121,7 +121,7 @@ class SnapshotableAdapter(object):
     def snapshot(self):
         return self.value
 
-basic_types = (int, str, unicode, float, type, bool, type(None))
+basic_types = (int, bytes, unicode, float, type, bool, type(None))
 for adapted in basic_types:
     adapter.register(adapted, ISnapshotable)
 
@@ -318,7 +318,7 @@ class Serializer(object):
     to a list of list where the first element is None or a function used
     to pack the following values::
 
-      "spam" -> [pack_str, "spam"]
+      "spam" -> [pack_bytes, "spam"]
       u"spam" -> [pack_unicode, u"spam"]
       42 -> [pack_int, 42]
       0.1 -> [pack_float, 0.1]
@@ -364,7 +364,7 @@ class Serializer(object):
 
     """
 
-    pack_str = None
+    pack_bytes = None
     pack_unicode = None
     pack_int = None
     pack_enum = None
@@ -526,9 +526,9 @@ class Serializer(object):
                                 self.flatten_value(value, caps, freezing)]
 
     def flatten_str_value(self, value, caps, freezing):
-        self.check_capabilities(Capabilities.str_values, value,
+        self.check_capabilities(Capabilities.bytes_values, value,
                                 caps, freezing)
-        return self.pack_str, value
+        return self.pack_bytes, value
 
     def flatten_unicode_value(self, value, caps, freezing):
         self.check_capabilities(Capabilities.unicode_values, value,
@@ -629,7 +629,7 @@ class Serializer(object):
     def flatten_str_key(self, value, caps, freezing):
         self.check_capabilities(Capabilities.str_keys, value,
                                 caps, freezing)
-        return self.pack_str, value
+        return self.pack_bytes, value
 
     def flatten_unicode_key(self, value, caps, freezing):
         self.check_capabilities(Capabilities.unicode_keys, value,

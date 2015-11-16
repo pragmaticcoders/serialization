@@ -37,7 +37,7 @@ class Capabilities(enum.Enum):
      enum_values,
      long_values,
      float_values,
-     str_values,
+     bytes_values,
      unicode_values,
      bool_values,
      none_values,
