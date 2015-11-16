@@ -525,7 +525,7 @@ class Serializer(object):
         return self.pack_item, [self.flatten_key(key, caps, freezing),
                                 self.flatten_value(value, caps, freezing)]
 
-    def flatten_str_value(self, value, caps, freezing):
+    def flatten_bytes_value(self, value, caps, freezing):
         self.check_capabilities(Capabilities.bytes_values, value,
                                 caps, freezing)
         return self.pack_bytes, value
@@ -626,7 +626,7 @@ class Serializer(object):
         return self.pack_dict, [self.flatten_item(i, caps, freezing)
                                 for i in items]
 
-    def flatten_str_key(self, value, caps, freezing):
+    def flatten_bytes_key(self, value, caps, freezing):
         self.check_capabilities(Capabilities.str_keys, value,
                                 caps, freezing)
         return self.pack_bytes, value
@@ -726,7 +726,7 @@ class Serializer(object):
                      list: flatten_list_value,
                      set: flatten_set_value,
                      dict: flatten_dict_value,
-                     str: flatten_str_value,
+                     bytes: flatten_bytes_value,
                      unicode: flatten_unicode_value,
                      int: flatten_int_value,
                      long: flatten_long_value,
@@ -738,7 +738,7 @@ class Serializer(object):
                      types.MethodType: flatten_method_value}
 
     _key_lookup = {tuple: flatten_tuple_key,
-                   str: flatten_str_key,
+                   bytes: flatten_bytes_key,
                    unicode: flatten_unicode_key,
                    int: flatten_int_key,
                    long: flatten_long_key,
