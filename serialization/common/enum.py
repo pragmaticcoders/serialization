@@ -26,6 +26,9 @@ from __future__ import absolute_import
 
 import types
 from future.utils import with_metaclass
+from past.types import unicode
+
+from serialization.common.decorator import unicode_args
 
 
 class MetaEnum(type):
@@ -70,6 +73,7 @@ class MetaEnum(type):
 
         return self
 
+    @unicode_args
     def get(cls, key):
         """
         str, int or Enum => Enum
@@ -80,7 +84,7 @@ class MetaEnum(type):
             if not int(key) in cls._values:
                 raise KeyError("There is no enum with key %d" % key)
             return cls._values[key]
-        if isinstance(key, (str, unicode)):
+        if isinstance(key, (bytes, unicode)):
             if not key in cls._names:
                 raise KeyError("There is no enum with name %s" % key)
             return cls._names[key]

@@ -25,6 +25,7 @@ from __future__ import absolute_import
 import inspect
 import sys
 import types
+from serialization.common.decorator import unicode_args
 from future.utils import PY3
 
 from zope.interface.interface import InterfaceClass
@@ -46,6 +47,7 @@ def canonical_name(obj):
     return _canonical_type(obj.__class__)
 
 
+@unicode_args
 def named_function(name):
     """Gets a fully named module-global object."""
     name_parts = name.split('.')
@@ -56,6 +58,7 @@ def named_function(name):
     return func
 
 
+@unicode_args
 def named_module(name):
     """Returns a module given its name."""
     module = __import__(name)
@@ -66,6 +69,7 @@ def named_module(name):
     return m
 
 
+@unicode_args
 def named_object(name):
     """Gets a fully named module-global object."""
     name_parts = name.split('.')
@@ -73,6 +77,7 @@ def named_object(name):
     return getattr(module, name_parts[-1])
 
 
+@unicode_args
 def class_locals(depth, tag=None):
     frame = sys._getframe(depth)
     locals = frame.f_locals

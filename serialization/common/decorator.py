@@ -22,9 +22,10 @@
 
 from __future__ import absolute_import
 
+from functools import wraps
+
 import types
 
-from serialization.common import reflect
 
 """TODO: Better function mimicry."""
 
@@ -122,10 +123,11 @@ def simple_callable(decorator):
 
     '''
 
+    from serialization.common import reflect
+
     def meta_decorator(function):
 
         wrapper = decorator(function)
-
         if reflect.inside_class_definition(depth=2):
 
             def method_wrapper(*args, **kwargs):
@@ -220,6 +222,27 @@ def parametrized_callable(decorator):
     return meta_decorator
 
 
+def unicode_args(fn):
+    @wraps(fn)
+    def wrapper(*orig_args, **orig_kwargs):
+        args = []
+        for a in orig_args:
+            if isinstance(a, bytes):
+                arg = a.decode()
+            else:
+                arg = a
+            args.append(arg)
+        kwargs = {}
+        for k, v in orig_kwargs.items():
+            if isinstance(v, bytes):
+                value = v.decode()
+            else:
+                value = v
+            kwargs[k] = value
+        return fn(*args, **kwargs)
+    return wrapper
+
+
 ### Private ###
 
 
@@ -263,6 +286,7 @@ class _ConsistentMetaDecorator(object):
 
     def __call__(self, callable):
         wrapper = self.decorator(callable, *self.args, **self.kwargs)
+        from serialization.common import reflect
 
         if reflect.inside_class_definition(depth=2):
 
