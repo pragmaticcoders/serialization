@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 
 from past.types import unicode, long
+from future.utils import PY3
 
 import json
 
@@ -86,14 +87,17 @@ class PreSerializer(base.Serializer):
                                  externalizer=externalizer,
                                  source_ver=source_ver,
                                  target_ver=target_ver)
-        self._force_unicode = force_unicode
+        if PY3:
+            self._force_unicode = True
+        else:
+            self._force_unicode = force_unicode
 
     ### Overridden Methods ###
 
     def flatten_key(self, key, caps, freezing):
-        if not isinstance(key, str):
+        if not isinstance(key, bytes):
             if isinstance(key, unicode) and self._force_unicode:
-                pass
+                return self.pack_unicode, key
             else:
                 raise TypeError("Serializer %s is not capable of serializing "
                                 "non-string dictionary keys: %r"
@@ -196,7 +200,7 @@ class Serializer(PreSerializer):
 
 class Unserializer(base.Unserializer):
 
-    pass_through_types = set([str, unicode, int, long,
+    pass_through_types = set([bytes, unicode, int, long,
                               float, bool, type(None)])
 
     def __init__(self, encoding=None, registry=None, externalizer=None,
@@ -211,9 +215,9 @@ class Unserializer(base.Unserializer):
     ### Overridden Methods ###
 
     def pre_convertion(self, data):
-        if isinstance(data, str):
+        if isinstance(data, bytes):
             if self._encoding is None:
-                return json.loads(unicode(data))
+                return json.loads(data.decode(DEFAULT_ENCODING))
             return json.loads(data, encoding=self._encoding)
         return json.loads(data)
 
@@ -259,8 +263,10 @@ class Unserializer(base.Unserializer):
 
     def unpack_enum(self, data):
         _, full_name = data
-        parts = full_name.encode(DEFAULT_ENCODING).split('.')
-        type_name = ".".join(parts[:-1])
+        if isinstance(full_name, bytes):
+            full_name = full_name.decode(DEFAULT_ENCODING)
+        parts = full_name.encode(DEFAULT_ENCODING).split(b'.')
+        type_name = b".".join(parts[:-1])
         enum = self.restore_type(type_name)
         return enum.get(parts[-1])
 
@@ -275,8 +281,10 @@ class Unserializer(base.Unserializer):
         return bytes.encode(codec)
 
     def unpack_bytes(self, data):
-        _, bytes = data
-        return bytes.decode(BYTES_ENCODING)
+        _, _bytes = data
+        if PY3 and isinstance(_bytes, unicode):
+            return _bytes
+        return _bytes.decode(BYTES_ENCODING)
 
     def unpack_tuple(self, data):
         return tuple([self.unpack_data(d) for d in data[1:]])
