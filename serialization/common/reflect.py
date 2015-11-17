@@ -155,4 +155,5 @@ def _canonical_method(obj):
 
 
 def _canonical_builtin(obj):
+    # TODO: py2 only
     return "__builtin__." + obj.__name__
