@@ -588,8 +588,8 @@ class ConverterTest(common.TestCase):
             _, Y, _ = next(values)
 
             keys = iter_keys(valdesc)
-            _, K, _ = keys.next()
-            _, L, _ = keys.next()
+            _, K, _ = next(keys)
+            _, L, _ = next(keys)
 
             if Capabilities.list_values in capabilities:
                 Z = [X, Y]
@@ -758,7 +758,7 @@ class ConverterTest(common.TestCase):
         if isinstance(a, float):
             return abs(a - b) < 0.000001
 
-        if isinstance(a, (int, long, str, unicode, bool, type(None))):
+        if isinstance(a, (int, long, bytes, unicode, bool, type(None))):
             return a == b
 
         aid = id(a)

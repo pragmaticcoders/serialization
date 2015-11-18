@@ -66,8 +66,8 @@ def deep_compare(expected, value):
             while True:
                 new_path = path + "[%s]" % i
                 i += 1
-                v1 = a.next()
-                v2 = b.next()
+                v1 = next(a)
+                v2 = next(b)
                 result = compare_value(v1, v2, new_path)
                 if result:
                     return result
