@@ -142,14 +142,12 @@ class TestTypeSerializationDummy(object):
 class MetaTestTypeSerializationDummy(type):
     pass
 
-# TODO: figure out why this works:
-if PY3:
-    class TestTypeSerializationDummyWithMeta(
-            with_metaclass(MetaTestTypeSerializationDummy, object)):
-        pass
-else:
-    class TestTypeSerializationDummyWithMeta(object):
-        __metaclass__ = MetaTestTypeSerializationDummy
+
+class TestTypeSerializationDummyWithMeta(
+        with_metaclass(MetaTestTypeSerializationDummy, object)):
+    __metaclass_save_equal_hack__ = MetaTestTypeSerializationDummy
+    # our `safe_equal` use `__dict__` and `__metaclass__` is in
+    # this dict so we need some other __other_field__ to ident it
 
 
 class ConverterTest(common.TestCase):
