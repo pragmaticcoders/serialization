@@ -25,7 +25,7 @@
 from __future__ import absolute_import
 
 import types
-from future.utils import with_metaclass
+from six import with_metaclass
 from past.types import unicode
 
 from serialization.common.decorator import unicode_args

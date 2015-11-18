@@ -27,7 +27,7 @@ from __future__ import absolute_import
 
 import types
 from past.types import long, unicode
-from future.utils import with_metaclass
+from six import with_metaclass
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass

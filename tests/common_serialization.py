@@ -30,7 +30,7 @@ import types
 
 from past.types import long, unicode
 
-from future.utils import with_metaclass, PY3
+from six import with_metaclass, PY3
 
 from builtins import range
 from builtins import object

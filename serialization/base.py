@@ -29,7 +29,8 @@ import types
 
 from zope.interface.declarations import provider, implementer
 from zope.interface.interface import InterfaceClass
-from future.utils import with_metaclass
+
+from six import with_metaclass
 
 from future.utils import raise_
 from past.types import long, unicode
