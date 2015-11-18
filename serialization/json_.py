@@ -25,6 +25,8 @@ from __future__ import absolute_import
 from past.types import unicode, long
 from future.utils import PY3
 
+import base64
+
 import json
 
 from serialization.common import reflect
@@ -87,16 +89,13 @@ class PreSerializer(base.Serializer):
                                  externalizer=externalizer,
                                  source_ver=source_ver,
                                  target_ver=target_ver)
-        if PY3:
-            self._force_unicode = True
-        else:
-            self._force_unicode = force_unicode
+        self._force_unicode = force_unicode
 
     ### Overridden Methods ###
 
     def flatten_key(self, key, caps, freezing):
         if not isinstance(key, bytes):
-            if isinstance(key, unicode) and self._force_unicode:
+            if isinstance(key, unicode) and (self._force_unicode or PY3):
                 return self.pack_unicode, key
             else:
                 raise TypeError("Serializer %s is not capable of serializing "
@@ -117,8 +116,11 @@ class PreSerializer(base.Serializer):
                 return value
             return [ENCODED_ATOM, DEFAULT_ENCODING, value]
         except UnicodeDecodeError:
+            value = base64.b64encode(data).strip()
+            if PY3:
+                value = value.decode(DEFAULT_ENCODING)
             # if it fail store it as base64 encoded bytes
-            return [BYTES_ATOM, data.encode(BYTES_ENCODING).strip()]
+            return [BYTES_ATOM, value]
 
     def pack_set(self, data):
         return [SET_ATOM] + data
@@ -282,9 +284,8 @@ class Unserializer(base.Unserializer):
 
     def unpack_bytes(self, data):
         _, _bytes = data
-        if PY3 and isinstance(_bytes, unicode):
-            return _bytes
-        return _bytes.decode(BYTES_ENCODING)
+        value = base64.b64decode(_bytes)
+        return value
 
     def unpack_tuple(self, data):
         return tuple([self.unpack_data(d) for d in data[1:]])
@@ -296,7 +297,10 @@ class Unserializer(base.Unserializer):
         container.update(self.unpack_unordered_values(data[1:]))
 
     def unpack_dict(self, container, data):
-        items = [(k.encode(DEFAULT_ENCODING), v)for k, v in data.items()]
+        if PY3:
+            items = data.items()
+        else:
+            items = [(k.encode(DEFAULT_ENCODING), v)for k, v in data.items()]
         container.update(self.unpack_unordered_pairs(items))
 
     def unpack_function(self, data):
