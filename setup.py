@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from functools import reduce
+from operator import add
 
 try:
     from setuptools import setup
@@ -21,9 +23,13 @@ requirements = [
     'zope.interface'
 ]
 
+extras_require = {
+    'BANNANA': ['twisted'],  # need for serialize.bannan
+}
+
 test_requirements = [
     # TODO: put package test requirements here
-]
+] + reduce(add, extras_require.values())
 
 setup(
     name='serialization',
