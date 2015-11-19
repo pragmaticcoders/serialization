@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* all feat contributors https://github.com/f3at/feat/graphs/contributors
