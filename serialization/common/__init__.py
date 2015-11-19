@@ -23,6 +23,7 @@
 # vi:si:et:sw=4:sts=4:ts=4
 
 from __future__ import absolute_import
+from past.types import unicode, long
 
 
 def first(iterator):
