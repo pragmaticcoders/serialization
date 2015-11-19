@@ -74,8 +74,8 @@ JSON_CONVERTER_CAPS = set([Capabilities.int_values,
                            Capabilities.function_values])
 
 JSON_FREEZER_CAPS = JSON_CONVERTER_CAPS \
-                    | set([Capabilities.builtin_values,
-                           Capabilities.method_values])
+    | set([Capabilities.builtin_values,
+           Capabilities.method_values])
 
 
 class PreSerializer(base.Serializer):
@@ -139,7 +139,7 @@ class PreSerializer(base.Serializer):
         type_name, snapshot = data
 
         if isinstance(snapshot, dict):
-            result = dict(snapshot) # Copy the dict to not modify the original
+            result = dict(snapshot)  # Copy the dict to not modify the original
             assert INSTANCE_TYPE_ATOM not in result
             assert INSTANCE_STATE_ATOM not in result
             result[INSTANCE_TYPE_ATOM] = type_name
@@ -179,9 +179,9 @@ class Serializer(PreSerializer):
                  externalizer=None, source_ver=None, target_ver=None,
                  sort_keys=False):
         PreSerializer.__init__(self, force_unicode=force_unicode,
-                                 externalizer=externalizer,
-                                 source_ver=source_ver,
-                                 target_ver=target_ver)
+                               externalizer=externalizer,
+                               source_ver=source_ver,
+                               target_ver=target_ver)
         self._indent = indent
         self._separators = separators
         self._encoding = encoding

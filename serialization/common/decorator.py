@@ -247,7 +247,7 @@ def unicode_args(fn):
 
 
 def _function_mimicry(original, mimic):
-    #FIXME: We should do better and to copy function signature too
+    # FIXME: We should do better and to copy function signature too
     mimic.original_func = original
     if original.__dict__:
         for key in original.__dict__:

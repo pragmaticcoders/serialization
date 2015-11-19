@@ -35,11 +35,11 @@ class MetaEnum(type):
 
     def __init__(cls, name, bases, namespace):
         type.__init__(cls, name, bases, namespace)
-        if bases == (int, ): # Base Enum class
+        if bases == (int, ):  # Base Enum class
             return
 
         cls._names = {}  # {str: Enum}
-        cls._values = {} # {int: Enum}
+        cls._values = {}  # {int: Enum}
         cls._items = {}  # {Enum: str}
         for key, value in namespace.items():
             if not isinstance(value, types.FunctionType):
@@ -56,12 +56,12 @@ class MetaEnum(type):
 
         if not isinstance(value, int):
             raise TypeError("Enum value type must be int not %s"
-                             % (value.__class__.__name__))
+                            % (value.__class__.__name__))
         if value in cls._values:
             raise ValueError(
                 "Error while creating enum %s of type %s, "
                 "it has already been created as %s" % (
-                value, cls.__name__, cls._values[value]))
+                    value, cls.__name__, cls._values[value]))
 
         self = super(Enum, cls).__new__(cls, value)
         self.name = name
@@ -89,7 +89,7 @@ class MetaEnum(type):
                 raise KeyError("There is no enum with name %s" % key)
             return cls._names[key]
         raise TypeError("Invalid enum key type: %s"
-                         % (key.__class__.__name__))
+                        % (key.__class__.__name__))
 
     __getitem__ = get
 

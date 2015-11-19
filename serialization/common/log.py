@@ -30,7 +30,7 @@ import sys
 from zope.interface.declarations import implementer
 
 from serialization.interface.log import ILogKeeper, ILogger, LogLevel
-flulog = None #dynamicaly imported from FluLogKeeper.init()
+flulog = None  # dynamicaly imported from FluLogKeeper.init()
 
 verbose = os.environ.get("FEAT_VERBOSE", "NO").upper() in ("YES", "1", "TRUE")
 
@@ -139,7 +139,7 @@ class Logger(object):
     def logex(self, level, format, args, depth=1,
               file_path=None, line_num=None):
         self._logger.do_log(level, self.log_name,
-                            self.log_category, format, args, depth=depth+1,
+                            self.log_category, format, args, depth=depth + 1,
                             file_path=file_path, line_num=line_num)
 
     def log(self, format, *args):
@@ -187,7 +187,7 @@ class LogProxy(object):
     def do_log(self, level, object, category, format, args,
                depth=2, file_path=None, line_num=None):
         self._logkeeper.do_log(level, object, category, format, args,
-               depth=depth+1, file_path=file_path, line_num=line_num)
+                               depth=depth + 1, file_path=file_path, line_num=line_num)
 
     def redirect_log(self, logkeeper):
         self._logkeeper = ILogKeeper(logkeeper)
@@ -223,7 +223,7 @@ class LogTee(object):
         for logkeeper in self._logkeepers.itervalues():
             logkeeper.do_log(
                 level, object, category, format, args,
-                depth=depth+1, file_path=file_path, line_num=line_num)
+                depth=depth + 1, file_path=file_path, line_num=line_num)
 
 
 @implementer(ILogKeeper)
@@ -358,7 +358,7 @@ class FluLogKeeper(object):
                depth=2, file_path=None, line_num=None):
         global flulog
         flulog.doLog(int(level), object, category, format, args,
-                     where=-depth-1, filePath=file_path, line=line_num)
+                     where=-depth - 1, filePath=file_path, line=line_num)
 
 
 _default_keeper = VoidLogKeeper()

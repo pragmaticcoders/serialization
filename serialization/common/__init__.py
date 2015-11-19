@@ -107,7 +107,6 @@ def deep_compare(expected, value):
                 msg = ("expected %s and got %s" % (v1, v2))
                 return path, msg
 
-
         d1 = v1.__dict__
         d2 = v2.__dict__
 

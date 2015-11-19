@@ -85,7 +85,7 @@ def class_locals(depth, tag=None):
     # check for __module__ since it doesn't seem to be added to the locals
     # until later on.  (Copied From zope.interfaces.declartion._implements)
     if (locals is frame.f_globals) or (
-        ('__module__' not in locals) and sys.version_info[:3] > (2, 2, 0)):
+            ('__module__' not in locals) and sys.version_info[:3] > (2, 2, 0)):
         name = (tag and tag + " ") or ""
         raise TypeError(name + "can be used only from a class definition.")
     return locals
@@ -123,7 +123,7 @@ def formatted_function_name(function):
         argspec.args.pop(0)
 
     args = argspec.args or list()
-    display_args = [x if len(defaults) < -index \
+    display_args = [x if len(defaults) < -index
                     else "%s=%s" % (x, defaults[index])
                     for x, index in zip(args, range(-len(args), 0, 1))]
     if argspec.varargs:

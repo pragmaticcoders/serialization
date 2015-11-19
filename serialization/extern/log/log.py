@@ -76,7 +76,7 @@ def getLevelName(level):
     @rtype: str
     """
     assert isinstance(level, int) and level > 0 and level < 6, \
-           TypeError("Bad debug level")
+        TypeError("Bad debug level")
     return getLevelNames()[level - 1]
 
 
@@ -99,12 +99,12 @@ def getLevelInt(levelName):
     """
     assert isinstance(levelName, str) and levelName in getLevelNames(), \
         "Bad debug level name"
-    return  getLevelNames().index(levelName)+1
+    return getLevelNames().index(levelName) + 1
 
 
 def getFormattedLevelName(level):
     assert isinstance(level, int) and level > 0 and level < 6, \
-           TypeError("Bad debug level")
+        TypeError("Bad debug level")
     return _FORMATTED_LEVELS[level - 1]
 
 
@@ -138,7 +138,7 @@ def registerCategory(category):
                 continue
             try:
                 level = int(value)
-            except ValueError: # e.g. *; we default to most
+            except ValueError:  # e.g. *; we default to most
                 level = 5
     # store it
     _categories[category] = level
@@ -291,15 +291,15 @@ def getFormatArgs(startFormat, startArgs, endFormat, endArgs, args, kwargs):
         debugArgs.extend(items)
     debugArgs.extend(endArgs)
     debugFormat = startFormat \
-              + ', '.join(('%s', ) * len(args)) \
-              + (kwargs and ', ' or '') \
-              + ', '.join(('%s=%r', ) * len(kwargs)) \
-              + endFormat
+        + ', '.join(('%s', ) * len(args)) \
+        + (kwargs and ', ' or '') \
+        + ', '.join(('%s=%r', ) * len(kwargs)) \
+        + endFormat
     return debugFormat, debugArgs
 
 
 def doLog(level, object, category, format, args, where=-1,
-    filePath=None, line=None):
+          filePath=None, line=None):
     """
     @param where:     what to log file and line number for;
                       -1 for one frame above log.py; -2 and down for higher up;
@@ -471,14 +471,14 @@ def _preformatLevels(noColorEnvVarName):
 
         t = termcolor.TerminalController()
         formatter = lambda level: ''.join((t.BOLD, getattr(t, COLORS[level]),
-                            format % (_LEVEL_NAMES[level-1], ), t.NORMAL))
+                                           format % (_LEVEL_NAMES[level - 1], ), t.NORMAL))
     else:
-        formatter = lambda level: format % (_LEVEL_NAMES[level-1], )
+        formatter = lambda level: format % (_LEVEL_NAMES[level - 1], )
 
     for level in ERROR, WARN, INFO, DEBUG, LOG:
         _FORMATTED_LEVELS.append(formatter(level))
 
-### "public" useful API
+# "public" useful API
 
 # setup functions
 
@@ -802,35 +802,35 @@ class Loggable:
         if _canShortcutLogging(self.logCategory, ERROR):
             return
         errorObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(*args))
+                    *self.logFunction(*args))
 
     def warning(self, *args):
         """Log a warning.  Used for non-fatal problems."""
         if _canShortcutLogging(self.logCategory, WARN):
             return
         warningObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(*args))
+                      *self.logFunction(*args))
 
     def info(self, *args):
         """Log an informational message.  Used for normal operation."""
         if _canShortcutLogging(self.logCategory, INFO):
             return
         infoObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(*args))
+                   *self.logFunction(*args))
 
     def debug(self, *args):
         """Log a debug message.  Used for debugging."""
         if _canShortcutLogging(self.logCategory, DEBUG):
             return
         debugObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(*args))
+                    *self.logFunction(*args))
 
     def log(self, *args):
         """Log a log message.  Used for debugging recurring events."""
         if _canShortcutLogging(self.logCategory, LOG):
             return
         logObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(*args))
+                  *self.logFunction(*args))
 
     def doLog(self, level, where, format, *args, **kwargs):
         """
@@ -854,7 +854,7 @@ class Loggable:
             return {}
         args = self.logFunction(*args)
         return doLog(level, self.logObjectName(), self.logCategory,
-            format, args, where=where, **kwargs)
+                     format, args, where=where, **kwargs)
 
     def warningFailure(self, failure, swallow=True):
         """
@@ -869,7 +869,7 @@ class Loggable:
                 return
             return failure
         warningObject(self.logObjectName(), self.logCategory,
-            *self.logFunction(getFailureMessage(failure)))
+                      *self.logFunction(getFailureMessage(failure)))
         if not swallow:
             return failure
 
@@ -979,10 +979,10 @@ class TwistedLogObserver(Loggable):
     logCategory = "logobserver"
 
     def __init__(self):
-        self._ignoreErrors = [] # Failure types
+        self._ignoreErrors = []  # Failure types
 
     def emit(self, eventDict):
-        method = log # by default, lowest level
+        method = log  # by default, lowest level
         edm = eventDict['message']
         if not edm:
             if eventDict['isError'] and 'failure' in eventDict:
@@ -996,7 +996,7 @@ class TwistedLogObserver(Loggable):
 
                 self.log("Failure %r" % f)
 
-                method = debug # tracebacks from errors at debug level
+                method = debug  # tracebacks from errors at debug level
                 msg = "A twisted traceback occurred."
                 if getCategoryLevel("twisted") < WARN:
                     msg += "  Run with debug level >= 2 to see the traceback."
@@ -1014,8 +1014,8 @@ class TwistedLogObserver(Loggable):
             text = ' '.join(map(str, edm))
 
         msgStr = " [%(system)s] %(text)s\n" % {
-                'system': eventDict['system'],
-                'text': text.replace("\n", "\n\t")}
+            'system': eventDict['system'],
+            'text': text.replace("\n", "\n\t")}
         # because msgstr can contain %, as in a backtrace, make sure we
         # don't try to splice it
         method('twisted', msgStr)

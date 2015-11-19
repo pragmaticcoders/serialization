@@ -72,9 +72,9 @@ DEFAULT_CONVERTER_CAPS = set([Capabilities.int_values,
                               Capabilities.meta_types])
 
 DEFAULT_FREEZER_CAPS = DEFAULT_CONVERTER_CAPS \
-                       | set([Capabilities.builtin_values,
-                              Capabilities.function_values,
-                              Capabilities.method_values])
+    | set([Capabilities.builtin_values,
+           Capabilities.function_values,
+           Capabilities.method_values])
 
 FREEZING_TAG_ATTRIBUTE = '__freezing_tag__'
 
@@ -262,7 +262,7 @@ class Externalizer(object):
     because it's id() would change.."""
 
     def __init__(self):
-        self._registry = {} # {INSTANCE_ID: ISNTANCE}
+        self._registry = {}  # {INSTANCE_ID: ISNTANCE}
 
     def add(self, instance):
         identifier = self.get_identifier(instance)
@@ -395,7 +395,7 @@ class Serializer(object):
                  source_ver=None, target_ver=None):
         global _global_registry
         assert ((source_ver is None) and (target_ver is None)) \
-               or ((source_ver is not None) and (target_ver is not None))
+            or ((source_ver is not None) and (target_ver is not None))
         self.converter_capabilities = converter_caps or DEFAULT_CONVERTER_CAPS
         self.freezer_capabilities = freezer_caps or DEFAULT_FREEZER_CAPS
         self._post_converter = post_converter and IConverter(post_converter)
@@ -452,10 +452,10 @@ class Serializer(object):
         return data
 
     def reset(self):
-        self._freezing = False # If we are freezing or serializing
-        self._preserved = {} # {OBJ_ID: FLATTENED_STRUCTURE}
-        self._refids = {} # {OBJ_ID: REFERENCE_ID}
-        self._references = {} # {OBJ_ID: REFERENCE_CONTAINER}
+        self._freezing = False  # If we are freezing or serializing
+        self._preserved = {}  # {OBJ_ID: FLATTENED_STRUCTURE}
+        self._refids = {}  # {OBJ_ID: REFERENCE_ID}
+        self._references = {}  # {OBJ_ID: REFERENCE_CONTAINER}
         self._memory = []
         self._refid = 0
 
@@ -841,7 +841,6 @@ class Unserializer(object):
     unserializing.
     """
 
-
     pass_through_types = ()
 
     def __init__(self, converter_caps=None, pre_converter=None,
@@ -849,7 +848,7 @@ class Unserializer(object):
                  source_ver=None, target_ver=None):
         global _global_registry
         assert ((source_ver is None) and (target_ver is None)) \
-               or ((source_ver is not None) and (target_ver is not None))
+            or ((source_ver is not None) and (target_ver is not None))
         self.converter_capabilities = converter_caps or DEFAULT_CONVERTER_CAPS
         self._pre_converter = pre_converter and IConverter(pre_converter)
         self._registry = IRegistry(registry) if registry else _global_registry
@@ -870,7 +869,7 @@ class Unserializer(object):
             self.finish_unpacking()
             # Inform object that it has migrated if this is a case
             if (IVersionAdapter.providedBy(unpacked) and
-                self._migrated):
+                    self._migrated):
                 unpacked.set_migrated()
 
             # Should be finished by now
@@ -887,10 +886,10 @@ class Unserializer(object):
         return data
 
     def reset(self):
-        self._references = {} # {REFERENCE_ID: (DATA_ID, OBJECT)}
-        self._pending = [] # Pendings unpacking
-        self._instances = [] # [(RESTORATOR, INSTANCE, SNAPSHOT, REFID)]
-        self._delayed = 0 # If we are in a delayable unpacking
+        self._references = {}  # {REFERENCE_ID: (DATA_ID, OBJECT)}
+        self._pending = []  # Pendings unpacking
+        self._instances = []  # [(RESTORATOR, INSTANCE, SNAPSHOT, REFID)]
+        self._delayed = 0  # If we are in a delayable unpacking
         # If some snapshot has been migrated between versions
         self._migrated = False
 
@@ -1017,7 +1016,7 @@ class Unserializer(object):
         Used to unpack set values when order is not guaranteed by
         the serializer. See unpack_unordered_pairs()."""
 
-        values = list(values) # To support iterators
+        values = list(values)  # To support iterators
         result = []
 
         # Try to unpack values more than one time to resolve cross references

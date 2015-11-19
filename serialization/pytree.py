@@ -134,7 +134,6 @@ class Dereference(object):
     referenced value. Can be compared for equality and hashed.
     Implements L{IDereference}.'''
 
-
     __slots__ = ("refid", )
 
     def __init__(self, refid):

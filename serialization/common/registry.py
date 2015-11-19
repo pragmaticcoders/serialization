@@ -50,7 +50,7 @@ class BaseRegistry(object):
         return self._data.items()
 
     def reset(self, snapshot):
-        self._data = {} # {key: RegistryEntry}
+        self._data = {}  # {key: RegistryEntry}
         for key, entry in snapshot:
             self.register(entry.object,
                           key=entry.key,

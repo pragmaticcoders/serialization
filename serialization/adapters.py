@@ -49,7 +49,7 @@ class BaseAdapter(object):
 
     adapter_mixin = None
 
-    _adapters = {} # {EXCEPTION_TYPE: ADAPTER_TYPE}
+    _adapters = {}  # {EXCEPTION_TYPE: ADAPTER_TYPE}
 
     @classmethod
     def get_adapter(cls, base_type):

@@ -36,7 +36,7 @@ class BananaCodec(object):
     def __init__(self):
         self._banana = banana.Banana()
         self._banana.connectionMade()
-        self._banana._selectDialect("pb") # More compact
+        self._banana._selectDialect("pb")  # More compact
 
     def encode(self, lst):
         io = StringIO()
@@ -56,8 +56,8 @@ class BananaCodec(object):
 
 
 BANANA_CONVERTER_CAPS = set([Capabilities.method_values,
-                               Capabilities.function_values,
-                               ])
+                             Capabilities.function_values,
+                             ])
 
 
 METHOD_ATOM = '.banana_method'
@@ -71,7 +71,7 @@ class Serializer(sexp.Serializer, BananaCodec):
             self, externalizer=externalizer,
             converter_caps=base.DEFAULT_CONVERTER_CAPS | BANANA_CONVERTER_CAPS,
             freezer_caps=base.DEFAULT_FREEZER_CAPS | BANANA_CONVERTER_CAPS,
-                                 source_ver=source_ver, target_ver=target_ver)
+            source_ver=source_ver, target_ver=target_ver)
         BananaCodec.__init__(self)
 
     def pack_method(self, data):

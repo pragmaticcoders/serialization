@@ -62,8 +62,8 @@ def print_errors(function):
         try:
             return function(*args, **kwargs)
         except BaseException as e:
-            print ("Exception raise calling %s: %s"
-                   % (reflect.canonical_name(function),
+            print("Exception raise calling %s: %s"
+                  % (reflect.canonical_name(function),
                       get_exception_message(e)))
             raise
 
@@ -172,7 +172,7 @@ def get_failure_message(failure):
 
 
 def get_exception_traceback(exception=None, cleanup=False):
-    #FIXME: Only work if the exception was raised in the current context
+    # FIXME: Only work if the exception was raised in the current context
     io = io.StringIO()
     traceback.print_exc(limit=30, file=io)
     tb = io.getvalue()
