@@ -32,7 +32,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author='Mateusz Probachta',
     author_email='mateusz.probachta@pragmaticcoders.com',
-    url='https://github.com/beetleman/serialization',
+    url='https://github.com/pragmaticcoders/serialization',
     packages=[
         'serialization',
     ],

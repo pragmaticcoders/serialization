@@ -2,8 +2,8 @@
 Serialization
 ===============================
 
-.. image:: https://img.shields.io/travis/beetleman/serialization.svg
-        :target: https://travis-ci.org/beetleman/serialization
+.. image:: https://img.shields.io/travis/pragmaticcoders/serialization.svg
+        :target: https://travis-ci.org/pragmaticcoders/serialization
 
 .. image:: https://img.shields.io/pypi/v/serialization.svg
         :target: https://pypi.python.org/pypi/serialization
