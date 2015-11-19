@@ -24,7 +24,7 @@ requirements = [
 ]
 
 extras_require = {
-    'BANNANA': ['twisted'],  # need for serialize.bannan
+    'BANANA': ['twisted'],  # need for serialize.bannan
 }
 
 test_requirements = [
