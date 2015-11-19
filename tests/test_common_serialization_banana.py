@@ -23,13 +23,18 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-import itertools
-import types
+from __future__ import absolute_import
 
-from twisted.spread import jelly
+from serialization.common import error
+import unittest
 
-from feat.common.serialization import banana
-from feat.interface.serialization import *
+try:
+    from serialization import banana
+except error.SerializeCompatError as err:
+    banana = None
+    skip_msg = str(err)
+
+from serialization.interface.serialization import *
 
 from . import common_serialization
 
@@ -37,10 +42,12 @@ from . import common_serialization
 class BananaConvertersTest(common_serialization.ConverterTest):
 
     def setUp(self):
+        if banana is None:
+            raise unittest.SkipTest(skip_msg)
         common_serialization.ConverterTest.setUp(self)
         ext = self.externalizer
-        self.serializer = banana.Serializer(externalizer = ext)
-        self.unserializer = banana.Unserializer(externalizer = ext)
+        self.serializer = banana.Serializer(externalizer=ext)
+        self.unserializer = banana.Unserializer(externalizer=ext)
 
     def testHelperFunctions(self):
         self.checkSymmetry(banana.serialize, banana.unserialize)

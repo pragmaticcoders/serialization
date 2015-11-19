@@ -22,9 +22,23 @@
 
 from __future__ import absolute_import
 
-from cStringIO import StringIO
+from future.utils import PY3
 
-from twisted.spread import banana
+from serialization.common import error
+
+if PY3:
+    raise error.SerializeCompatError(
+        '`twisted.spread` needed by this serializer is'
+        ' avialabe only for python 2'
+    )
+try:
+    from twisted.spread import banana
+except ImportError:
+    raise error.SerializeRequirementError(
+        'Install `twisted` before use this serializer'
+    )
+
+from cStringIO import StringIO
 
 from serialization.common import reflect
 from serialization import sexp, base
