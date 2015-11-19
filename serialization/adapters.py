@@ -129,10 +129,10 @@ class ExceptionAdapter(BaseAdapter):
         return ex
 
 
-@adapter.register(error.FeatError, ISerializable)
+@adapter.register(error.SerializeError, ISerializable)
 @serialization.register
 @provider(IRestorator)
-class FeatErrorAdapter(ExceptionAdapter):
+class SerializeErrorAdapter(ExceptionAdapter):
     """I'm cleaning up information about the traceback as we don't want it
     to end up in journal."""
 
