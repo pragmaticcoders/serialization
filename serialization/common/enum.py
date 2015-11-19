@@ -85,7 +85,7 @@ class MetaEnum(type):
                 raise KeyError("There is no enum with key %d" % key)
             return cls._values[key]
         if isinstance(key, (bytes, unicode)):
-            if not key in cls._names:
+            if key not in cls._names:
                 raise KeyError("There is no enum with name %s" % key)
             return cls._names[key]
         raise TypeError("Invalid enum key type: %s"

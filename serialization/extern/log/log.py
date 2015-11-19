@@ -152,7 +152,7 @@ def getCategoryLevel(category):
     if it wasn't registered yet.
     """
     global _categories
-    if not category in _categories:
+    if category not in _categories:
         registerCategory(category)
     return _categories[category]
 
@@ -242,7 +242,7 @@ def getFileLine(where=-1, targetModule=None):
 
         while stackFrame:
             co = stackFrame.f_code
-            if not co.co_filename in __file__:
+            if co.co_filename not in __file__:
                 # wind up the stack according to frame
                 while where < -1:
                     stackFrame = stackFrame.f_back
@@ -470,8 +470,9 @@ def _preformatLevels(noColorEnvVarName):
              or not os.environ[noColorEnvVarName])):
 
         t = termcolor.TerminalController()
-        formatter = lambda level: ''.join((t.BOLD, getattr(t, COLORS[level]),
-                                           format % (_LEVEL_NAMES[level - 1], ), t.NORMAL))
+        formatter = lambda level: ''.join((
+            t.BOLD, getattr(t, COLORS[level]),
+            format % (_LEVEL_NAMES[level - 1], ), t.NORMAL))
     else:
         formatter = lambda level: format % (_LEVEL_NAMES[level - 1], )
 

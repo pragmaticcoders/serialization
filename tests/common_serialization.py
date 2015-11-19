@@ -378,7 +378,8 @@ class ConverterTest(common.TestCase):
                     float, [0.0, 3.14159, -3.14159, 1.23145e23, 1.23145e-23]),
                    (Capabilities.bytes_values, Capabilities.str_keys,
                     str, ["", "spam"]),
-                   (Capabilities.bytes_values, None,  # May not be valid for keys
+                   # May not be valid for keys
+                   (Capabilities.bytes_values, None,
                     str, ["\x00", "\n", "\xFF"]),
                    (Capabilities.unicode_values, Capabilities.unicode_keys,
                     unicode, [u"", u"hétérogénéité", u"\x00\xFF\n"]),

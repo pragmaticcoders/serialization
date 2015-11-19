@@ -22,12 +22,11 @@
 
 from __future__ import absolute_import
 
-import operator
 import copy
 import sys
 import types
 
-from zope.interface.declarations import provider, implementer
+from zope.interface.declarations import implementer
 from zope.interface.interface import InterfaceClass
 
 from six import with_metaclass
@@ -37,8 +36,10 @@ from past.types import long, unicode
 
 from serialization.common import decorator, enum, adapter, reflect, registry
 from serialization.interface.serialization import ISerializable, Capabilities
-from serialization.interface.serialization import ISnapshotable, IFreezer, IConverter
-from serialization.interface.serialization import IRegistry, IExternalizer, IRestorator
+from serialization.interface.serialization import ISnapshotable, \
+    IFreezer, IConverter
+from serialization.interface.serialization import IRegistry, IExternalizer, \
+    IRestorator
 from serialization.interface.serialization import IVersionAdapter
 
 

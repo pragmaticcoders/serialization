@@ -20,7 +20,7 @@
 
 # Headers in this file shall remain intact.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from future import standard_library
 standard_library.install_aliases()
@@ -173,9 +173,9 @@ def get_failure_message(failure):
 
 def get_exception_traceback(exception=None, cleanup=False):
     # FIXME: Only work if the exception was raised in the current context
-    io = io.StringIO()
-    traceback.print_exc(limit=30, file=io)
-    tb = io.getvalue()
+    _io = io.StringIO()
+    traceback.print_exc(limit=30, file=_io)
+    tb = _io.getvalue()
     if not tb:
         tb = ("Exception has no traceback information. \n",
               "This can happen for 2 known reasons: \n",
@@ -190,7 +190,7 @@ def get_exception_traceback(exception=None, cleanup=False):
 
     if isinstance(exception, FeatError):
         if exception.cause_traceback:
-            print >> io, "\n\nCAUSED BY:\n\n"
+            print("\n\nCAUSED BY:\n\n", file=io)
             ctb = exception.cause_traceback
             if cleanup:
                 ctb = clean_traceback(ctb)
@@ -203,19 +203,19 @@ def get_failure_traceback(failure, cleanup=False):
     if isinstance(failure.type, str):
         return ""
 
-    io = io.StringIO()
+    _io = io.StringIO()
     tb = failure.getTraceback()
     if cleanup:
         tb = clean_traceback(tb)
-    print >> io, tb
+    print(tb, file=_io)
     exception = failure.value
     if exception and isinstance(exception, FeatError):
         if exception.cause_traceback:
-            print >> io, "\n\nCAUSED BY:\n\n"
+            print("\n\nCAUSED BY:\n\n", file=_io)
             tb = exception.cause_traceback
             if cleanup:
                 tb = clean_traceback(tb)
-            print >> io, tb
+            print(tb, file=io)
 
     return io.getvalue()
 

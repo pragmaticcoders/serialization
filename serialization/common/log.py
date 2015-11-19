@@ -186,8 +186,11 @@ class LogProxy(object):
 
     def do_log(self, level, object, category, format, args,
                depth=2, file_path=None, line_num=None):
-        self._logkeeper.do_log(level, object, category, format, args,
-                               depth=depth + 1, file_path=file_path, line_num=line_num)
+        self._logkeeper.do_log(
+            level, object, category, format, args,
+            depth=depth + 1, file_path=file_path,
+            line_num=line_num
+        )
 
     def redirect_log(self, logkeeper):
         self._logkeeper = ILogKeeper(logkeeper)

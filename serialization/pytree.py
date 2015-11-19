@@ -27,7 +27,7 @@ from zope.interface.interface import InterfaceClass
 
 from past.types import unicode, long
 
-from serialization.common import enum, reflect
+from serialization.common import reflect
 from serialization.interface.serialization import *
 
 from serialization import base
@@ -168,12 +168,12 @@ class Serializer(base.Serializer):
         >> a = [1, 2, 3]
         >> b = [4, 5, 6]
         >> c = ['X', a, 'Y', b, 'Z', a]
-        >> print TreeSerializer().convert(c)
+        >> print(TreeSerializer().convert(c))
         ['X', <Reference 1: [1, 2, 3]>, 'Y', [4, 5, 6], 'Z', <Derefence: 1>]
 
         >> o = Serializable()
         >> o.foo = 42
-        >> print TreeSerializer().convert(o)
+        >> print(TreeSerializer().convert(o))
         <Instance serialization.Serializable: {"foo": 42}>
 
     '''
