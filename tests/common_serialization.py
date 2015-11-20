@@ -293,12 +293,6 @@ class ConverterTest(common.TestCase):
             exp_types, exp_type_names = self._exp_types(exp_type)
 
             for value in values:
-                # For each conversion table entries
-                # Only check the value, not the alternatives
-                self.log("Checking conversion of %r (%s), expecting: %s",
-                         value, exp_type_names,
-                         ", ".join([repr(v) for v in exp_values]))
-
                 result = converter(value)
 
                 # Check type
@@ -339,8 +333,6 @@ class ConverterTest(common.TestCase):
         for exp_type, values, must_change in self.symmetry_table(capabilities):
             exp_types, exp_type_names = self._exp_types(exp_type)
             for value in values:
-                self.log("Checking symmetry for %r (%s)",
-                         value, exp_type_names)
                 self.assertTrue(issubclass(type(value), exp_types),
                                 "Expecting value %r to have type %s, not %s"
                                 % (value, exp_type_names,

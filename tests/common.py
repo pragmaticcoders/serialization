@@ -24,25 +24,9 @@ from __future__ import absolute_import
 
 import functools
 import unittest
-import sys
-
-from serialization.common import log
 
 
-class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
-
-    log_category = "test"
-
-    # define names of class variables here, which values can be change
-    # with the @attr decorator
-    configurable_attributes = []
-    skip_coverage = False
-
-    def __init__(self, *args, **kwargs):
-        log_keeper = log.get_default() or log.FluLogKeeper()
-        unittest.TestCase.__init__(self, *args, **kwargs)
-        log.LogProxy.__init__(self, log_keeper)
-        log.Logger.__init__(self, self)
+class TestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -56,14 +40,6 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
             "Skip {} tests, it's a base class".format(cls)
         )
 
-    def assert_not_skipped(self):
-        if self.skip_coverage and sys.gettrace():
-            raise unittest.SkipTest("Test Skipped during coverage")
-
-    def setUp(self):
-        log.test_reset()
-        self.assert_not_skipped()
-
     def assertFails(self, exception_class, method, *args, **kwargs):
         d = method(*args, **kwargs)
         self.assertFailure(d, exception_class)
@@ -73,6 +49,3 @@ class TestCase(unittest.TestCase, log.LogProxy, log.Logger):
         handler = functools.partial(handler, obj)
         obj.__setattr__(method, handler)
         return obj
-
-    def tearDown(self):
-        log.test_reset()
