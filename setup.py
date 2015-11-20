@@ -24,7 +24,8 @@ requirements = [
 ]
 
 extras_require = {
-    'BANANA': ['twisted'],  # need for serialize.bannan
+    'BANANA': ['twisted'],  # need for serialize.bannan,
+    'MSGPACK': ['msgpack-python'],  # meed for serialize to messagepack
 }
 
 test_requirements = [
