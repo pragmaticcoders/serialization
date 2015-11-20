@@ -39,6 +39,11 @@ from zope.interface import Interface
 from zope.interface.declarations import implementer
 from zope.interface.interface import InterfaceClass
 
+try:
+    from twisted.persisted.crefutil import NotKnown
+except:
+    NotKnown = None
+
 from unittest import SkipTest
 
 import serialization
@@ -257,13 +262,14 @@ class ConverterTest(common.TestCase):
     def unserialize(self, data):
         return self.unserializer.convert(data)
 
-    def assertEqualButDifferent(self, value, expected):
+    def assertEqualButDifferent(self, value, expected, strict=True):
         '''Asserts that two value are equal but are different instances.
         It will recurse python structure and object instances
         and ensure everything is equal but different.
         If the expected value contains multiple references to the same value,
         it ensures the other value contains a references to its own value.'''
-        self._assertEqualButDifferent(value, expected, 0, {}, {})
+        self._assertEqualButDifferent(value, expected, 0, {}, {},
+                                      strict=strict)
 
     def checkConvertion(self, table, converter, capabilities=None):
         # If int and long types are considered equals
@@ -321,7 +327,8 @@ class ConverterTest(common.TestCase):
                                  "\n".join(["EXPECTED: " + repr(v)
                                             for v in exp_values])))
 
-    def checkSymmetry(self, serializer, deserializer, capabilities=None):
+    def checkSymmetry(self, serializer, deserializer, capabilities=None,
+                      strict=True):
 
         if capabilities is None:
             capabilities = base.DEFAULT_CONVERTER_CAPS
@@ -344,7 +351,7 @@ class ConverterTest(common.TestCase):
                                 % (result, exp_type_names,
                                    type(result).__name__))
                 for v in values:
-                    if self.safe_equal(result, v, generic_int):
+                    if self.safe_equal(result, v, generic_int, strict=strict):
                         expected = v
                         break
                 else:
@@ -354,7 +361,8 @@ class ConverterTest(common.TestCase):
                                  "\n".join(["EXPECTED: " + repr(v)
                                             for v in values])))
                 if must_change:
-                    self.assertEqualButDifferent(result, expected)
+                    self.assertEqualButDifferent(result, expected,
+                                                 strict=strict)
 
     def convertion_table(self, capabilities, freezing):
         raise SkipTest("No convertion table")
@@ -713,14 +721,14 @@ class ConverterTest(common.TestCase):
                     yield list, [[o1, o2, o3]], True
                     yield list, [[o3, o1, o2]], True
 
-    def safe_equal(self, a, b, generic_int=True):
+    def safe_equal(self, a, b, generic_int=True, strict=False):
         '''Circular references safe comparator.
         The two values must have the same internal references,
         meaning if a contains multiple references to the same
         object, b should equivalent values should be references
         too but do not need to be references to the same object,
         the object just have to be equals.'''
-        return self._safe_equal(a, b, 0, {}, {}, generic_int)
+        return self._safe_equal(a, b, 0, {}, {}, generic_int, strict=strict)
 
     # ## Private Methods ###
 
@@ -735,7 +743,11 @@ class ConverterTest(common.TestCase):
             return tuple(val), type_names
         return (val, ), val.__name__
 
-    def _safe_equal(self, a, b, idx, arefs, brefs, gint, is__dict__=False):
+    def _safe_equal(self, a, b, idx, arefs, brefs, gint, is__dict__=False,
+                    strict=False):
+        if not strict:
+            a, b = self._get_ResolvedDereference(a, b)
+
         if a is b:
             return True
 
@@ -839,7 +851,18 @@ class ConverterTest(common.TestCase):
             return True
         raise RuntimeError("I don't know how to compare %r and %r" % (a, b))
 
-    def _assertEqualButDifferent(self, value, expected, idx, valids, expids):
+    def _get_ResolvedDereference(self, *objs):
+        r = []
+        for obj in objs:
+            if NotKnown is not None and isinstance(obj, NotKnown) and \
+               obj.resolved >= 1:
+                r.append(obj.resolvedObject)
+            else:
+                r.append(obj)
+        return r
+
+    def _assertEqualButDifferent(self, value, expected, idx, valids, expids,
+                                 strict=True):
         '''idx is used to identify every values uniquely to be able to verify
         references are made to the same value, valids and expids are
         dictionaries with instance id() for key and idx for value.
@@ -851,6 +874,9 @@ class ConverterTest(common.TestCase):
         if not isinstance(expected, (int, long, float, bool,
                                      str, unicode, type(None))):
             # Get unique instance identifiers
+            if not strict:
+                value, expected = self._get_ResolvedDereference(
+                    value, expected)
             expid = id(expected)
             valid = id(value)
 
@@ -877,14 +903,16 @@ class ConverterTest(common.TestCase):
             self.assertEqual(len(expected), len(value))
             for exp, val in zip(expected, value):
                 idx = self._assertEqualButDifferent(val, exp, idx + 1,
-                                                    valids, expids)
+                                                    valids, expids,
+                                                    strict=strict)
         elif isinstance(expected, set):
             self.assertEqual(len(expected), len(value))
             for exp in expected:
                 self.assertTrue(exp in value)
                 val = [v for v in value if v == exp][0]
                 idx = self._assertEqualButDifferent(val, exp, idx + 1,
-                                                    valids, expids)
+                                                    valids, expids,
+                                                    strict=strict)
         elif isinstance(expected, dict):
             self.assertEqual(len(expected), len(value))
             for exp_key, exp_val in expected.items():
@@ -892,9 +920,11 @@ class ConverterTest(common.TestCase):
                 val_key = [k for k in value if k == exp_key][0]
                 val_val = value[val_key]
                 idx = self._assertEqualButDifferent(val_key, exp_key, idx + 1,
-                                                    valids, expids)
+                                                    valids, expids,
+                                                    strict=strict)
                 idx = self._assertEqualButDifferent(val_val, exp_val, idx + 1,
-                                                    valids, expids)
+                                                    valids, expids,
+                                                    strict=strict)
         elif isinstance(value, float):
             self.assertAlmostEqual(value, expected)
         elif isinstance(value, (int, long, bool, str, unicode,
@@ -907,5 +937,6 @@ class ConverterTest(common.TestCase):
             idx = self._assertEqualButDifferent(value.__dict__,
                                                 expected.__dict__,
                                                 idx + 1,
-                                                valids, expids)
+                                                valids, expids,
+                                                strict=strict)
         return idx
