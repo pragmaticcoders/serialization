@@ -29,6 +29,7 @@ extras_require = {
 
 test_requirements = [
     # TODO: put package test requirements here
+    "ipdb",
 ] + reduce(add, extras_require.values())
 
 setup(
