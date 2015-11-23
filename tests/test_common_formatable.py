@@ -21,49 +21,57 @@
 # Headers in this file shall remain intact.
 
 from __future__ import absolute_import
+import unittest
 
 from . import common
-
 import serialization
-from serialization.common import formatable
+from serialization.common import error
 
 
-@serialization.register
-class Base(formatable.Formatable):
+try:
+    from serialization.common import formatable
 
-    formatable.field('field1', None)
-    formatable.field('field2', 5, 'custom_serializable')
+    @serialization.register
+    class Base(formatable.Formatable):
+
+        formatable.field('field1', None)
+        formatable.field('field2', 5, 'custom_serializable')
+
+    @serialization.register
+    class Child(Base):
+
+        formatable.field('field1', 'overwritten default')
+        formatable.field('field3', None)
+
+    @serialization.register
+    class PropertyTest(formatable.Formatable):
+
+        formatable.field('array', list())
+
+        @property
+        def element(self):
+            return self.array and self.array[-1]
+
+        @element.setter
+        def element(self, value):
+            self.array.append(value)
+
+        @property
+        def readonly(self):
+            return 'readonly'
 
 
-@serialization.register
-class Child(Base):
-
-    formatable.field('field1', 'overwritten default')
-    formatable.field('field3', None)
-
-
-@serialization.register
-class PropertyTest(formatable.Formatable):
-
-    formatable.field('array', list())
-
-    @property
-    def element(self):
-        return self.array and self.array[-1]
-
-    @element.setter
-    def element(self, value):
-        self.array.append(value)
-
-    @property
-    def readonly(self):
-        return 'readonly'
+except error.SerializeCompatError as err:
+    formatable = None
+    skip_msg = str(err)
 
 
 class TestFormatable(common.TestCase):
 
     def setUp(self):
-        pass
+        super(TestFormatable, self).setUp()
+        if formatable is None:
+            raise unittest.SkipTest(skip_msg)
 
     def testConstructing(self):
         base = Base(field1=2)
