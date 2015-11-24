@@ -1,2 +1,2 @@
 pyzmq
-serialization
+-e git+https://github.com/pragmaticcoders/serialization.git#egg=serialization
