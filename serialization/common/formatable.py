@@ -24,8 +24,6 @@
 
 from __future__ import absolute_import
 
-from serialization.common import error
-
 from six import with_metaclass, iterkeys, iteritems
 import copy
 

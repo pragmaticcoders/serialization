@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from .common_serialization import ConverterTestHelper
+from .utils import ConverterTestHelper
 
 
 @pytest.fixture

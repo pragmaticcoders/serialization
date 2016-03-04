@@ -37,7 +37,7 @@ from serialization.common import reflect
 from serialization import pytree, base
 import serialization
 
-from . import common_serialization
+from . import utils
 
 
 @serialization.register
@@ -486,7 +486,7 @@ class TestGenericSerialization(object):
         assert 'dummy_tag' == frozen
 
     def test_not_referenceable(self, serializer):
-        Klass = common_serialization.NotReferenceableDummy
+        Klass = utils.NotReferenceableDummy
         Inst = pytree.Instance
         name = reflect.canonical_name(Klass)
 
@@ -553,14 +553,14 @@ class TestPyTreeConverters(object):
             from datetime import datetime
             yield type, [int], type, [int], False
             yield type, [datetime], type, [datetime], False
-            yield (type, [common_serialization.SerializableDummy],
-                   type, [common_serialization.SerializableDummy], False)
+            yield (type, [utils.SerializableDummy],
+                   type, [utils.SerializableDummy], False)
             yield (InterfaceClass, [DummyInterface],
                    InterfaceClass, [DummyInterface], False)
 
             # ## Enums ###
 
-            DummyEnum = common_serialization.DummyEnum
+            DummyEnum = utils.DummyEnum
 
             yield DummyEnum, [DummyEnum.a], DummyEnum, [DummyEnum.a], False
             yield DummyEnum, [DummyEnum.c], DummyEnum, [DummyEnum.c], False
@@ -576,14 +576,14 @@ class TestPyTreeConverters(object):
                        [id(helper.ext_snap_val)], False)
             else:
                 identifier = (helper.ext_val.type_name, id(helper.ext_val))
-                yield (common_serialization.SerializableDummy,
+                yield (utils.SerializableDummy,
                        [helper.ext_val], pytree.External,
                        [pytree.External(identifier)], False)
 
             # ## Freezing-Only Types ###
 
             if freezing:
-                mod_name = "tests.test_common_serialization_pytree"
+                mod_name = "tests.test_pytree"
                 fun_name = mod_name + ".dummy_function"
                 meth_name = mod_name + ".DummyClass.dummy_method"
 
@@ -744,7 +744,7 @@ class TestPyTreeConverters(object):
                                         Ref(7, (Deref(2), Deref(3), Deref(6))),
                                         [Deref(4), Deref(5), Deref(7)])], True)
 
-            Klass = common_serialization.SerializableDummy
+            Klass = utils.SerializableDummy
             name = reflect.canonical_name(Klass)
 
             if freezing:

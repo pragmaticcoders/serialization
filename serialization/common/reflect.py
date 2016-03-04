@@ -30,7 +30,6 @@ from future.utils import PY3
 from zope.interface.interface import InterfaceClass
 
 from serialization.common.decorator import unicode_args
-from . import error
 
 
 def canonical_name(obj):

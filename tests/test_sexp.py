@@ -53,7 +53,7 @@ from serialization.common import reflect
 from serialization.interface.serialization import Capabilities
 from serialization.interface.serialization import IRestorator, ISerializable
 
-from . import common_serialization
+from . import utils
 
 
 @serialization.register
@@ -157,7 +157,7 @@ class TestSExpConverters(object):
             jelly.jelly, unserializer.convert, capabilities=caps)
 
     def test_not_referenceable(self, serializer, helper):
-        Klass = common_serialization.NotReferenceableDummy
+        Klass = utils.NotReferenceableDummy
         name = reflect.canonical_name(Klass)
 
         obj = Klass()
@@ -179,8 +179,8 @@ class TestSExpConverters(object):
     def test_instances_serialization(self, serializer):
         # Because dictionaries item order is not guaranteed we cannot
         # compare directly directlly the result
-        obj = common_serialization.SerializableDummy()
-        name = reflect.canonical_name(common_serialization.SerializableDummy)
+        obj = utils.SerializableDummy()
+        name = reflect.canonical_name(utils.SerializableDummy)
         data = serializer.convert(obj)
         assert isinstance(data, list)
         assert data[0] == name
@@ -238,8 +238,8 @@ class TestSExpConverters(object):
                 type, [datetime], list,
                 [["class", "datetime.datetime"]], False)
             name = reflect.canonical_name(
-                common_serialization.SerializableDummy)
-            yield (type, [common_serialization.SerializableDummy],
+                utils.SerializableDummy)
+            yield (type, [utils.SerializableDummy],
                    list, [["class", name]], False)
             name = reflect.canonical_name(DummyInterface)
             yield (InterfaceClass, [DummyInterface],
@@ -247,7 +247,7 @@ class TestSExpConverters(object):
 
             ### Enums ###
 
-            DummyEnum = common_serialization.DummyEnum
+            DummyEnum = utils.DummyEnum
             name = reflect.canonical_name(DummyEnum)
 
             if Capabilities.enum_values in Capabilities:
@@ -268,14 +268,14 @@ class TestSExpConverters(object):
             else:
                 identifier = [
                     "tuple", helper.ext_val.type_name, id(helper.ext_val)]
-                yield (common_serialization.SerializableDummy,
+                yield (utils.SerializableDummy,
                        [helper.ext_val], list,
                         [["external", identifier]], False)
 
             ### Freezing-Only Types ###
 
             if freezing:
-                mod_name = "tests.test_common_serialization_sexp"
+                mod_name = "tests.test_sexp"
                 fun_name = mod_name + ".dummy_function"
                 meth_name = mod_name + ".DummyClass.dummy_method"
 
@@ -524,7 +524,7 @@ class TestSExpConverters(object):
                      Ref(7, ['tuple', Deref(2), Deref(3), Deref(6)]),
                      ['list', Deref(4), Deref(5), Deref(7)]]], True)
 
-            Klass = common_serialization.SerializableDummy
+            Klass = utils.SerializableDummy
 
             # Object instances
             o = Klass()

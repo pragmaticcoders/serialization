@@ -42,7 +42,7 @@ from serialization.common import reflect
 import serialization
 from serialization import json_ as json
 
-from . import common_serialization
+from . import utils
 
 
 @serialization.register
@@ -122,22 +122,21 @@ class TestJSONConverters(object):
                 yield type, [int], str, ['[".type", "__builtin__.int"]'], False
             yield (type, [datetime],
                    str, ['[".type", "datetime.datetime"]'], False)
-            yield (type, [common_serialization.SerializableDummy],
-                   str, ['[".type", "tests.common_serialization.'
+            yield (type, [utils.SerializableDummy],
+                   str, ['[".type", "tests.utils.'
                          'SerializableDummy"]'], False)
             yield (InterfaceClass, [DummyInterface],
-                   str, ['[".type", "tests.test_common_serialization_json.'
-                         'DummyInterface"]'], False)
+                   str, ['[".type", "tests.test_json.DummyInterface"]'], False)
 
             # ## Enums ###
 
-            DummyEnum = common_serialization.DummyEnum
+            DummyEnum = utils.DummyEnum
 
             yield (DummyEnum, [DummyEnum.a],
-                   str, ['[".enum", "tests.common_serialization.'
+                   str, ['[".enum", "tests.utils.'
                          'DummyEnum.a"]'], False)
             yield (DummyEnum, [DummyEnum.c],
-                   str, ['[".enum", "tests.common_serialization.'
+                   str, ['[".enum", "tests.utils.'
                          'DummyEnum.c"]'], False)
 
             # ## External References ###
@@ -155,14 +154,14 @@ class TestJSONConverters(object):
                     name = '[".enc", "UTF8", "%s"]' % helper.ext_val.type_name
                     identifier = (
                         '[".tuple", %s, %d]' % (name, id(helper.ext_val)))
-                    yield (common_serialization.SerializableDummy,
+                    yield (utils.SerializableDummy,
                            [helper.ext_val], str,
                            ['[".ext", %s]' % identifier], False)
 
             # ## Freezing-Only Types ###
 
             if freezing:
-                mod_name = "tests.test_common_serialization_json"
+                mod_name = "tests.test_json"
                 fun_name = '"%s.dummy_function"' % mod_name
                 meth_name = '"%s.DummyClass.dummy_method"' % mod_name
 
