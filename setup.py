@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from functools import reduce
-from operator import add
+import os
 
 try:
     from setuptools import setup
@@ -10,27 +8,30 @@ except ImportError:
     from distutils.core import setup
 
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+def read_file(filename):
+    path = os.path.join(os.path.dirname(__file__), filename)
+    with open(path) as f:
+        return f.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
-    # TODO: put package requirements here
-    'future',
-    'six',
-    'zope.interface'
-]
+def read_requirements(filename):
+    contents = read_file(filename).strip('\n')
+    dependencies_without_comments = [
+        line.split()[0]
+        for line in contents.split('\n')
+        if line != '' and not line.startswith('#')
+    ]
+    return dependencies_without_comments
 
+
+readme = read_file('README.rst')
+history = read_file('HISTORY.rst')
+requirements = read_requirements('requirements.txt')
+test_requirements = read_requirements('requirements_dev.txt')
 extras_require = {
     'BANANA': ['twisted'],  # need for serialize.bannan
 }
 
-test_requirements = [
-    # TODO: put package test requirements here
-    "ipdb",
-] + reduce(add, extras_require.values())
 
 setup(
     name='serialization',

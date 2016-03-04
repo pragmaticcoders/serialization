@@ -24,9 +24,9 @@
 # vi:si:et:sw=4:sts=4:ts=4
 from __future__ import absolute_import
 
+import pytest
+
 from serialization.common import error
-import unittest
-from . import common
 
 try:
     from serialization.common import annotate
@@ -46,7 +46,7 @@ try:
         def decorator(method):
 
             def get_accompaniment(self, *args, **kwargs):
-                '''Create a method for the accompaniment'''
+                #Create a method for the accompaniment
                 return self.name + " wants " + accompaniment
 
             # Inject the new method in the class
@@ -58,7 +58,7 @@ try:
                                      "original_" + method.__name__, method)
 
             def wrapper(self, *args, **kwargs):
-                '''Wrapp a method call and add an accompaniment to its result'''
+                #Wrapp a method call and add an accompaniment to its result
                 result = method(self, *args, **kwargs)
                 return result + " and " + accompaniment
 
@@ -122,8 +122,8 @@ try:
     except annotate.AnnotationError:
         bad_annotation_method_fail = True
 
-    def test_mixin(fun):
-        annotate.injectClassCallback("test_mixin", 3, "_register", fun)
+    def mixin(fun):
+        annotate.injectClassCallback("mixin", 3, "_register", fun)
         return fun
 
     class MixinTestBase(annotate.Annotable):
@@ -146,27 +146,27 @@ try:
             assert value not in cls.values, "Values are: %r" % (cls.values, )
             cls.values[value] = cls
 
-        @test_mixin
+        @mixin
         def first_annotation(self):
             pass
 
     class MixinTestMixin(object):
 
-        @test_mixin
+        @mixin
         def mixin_annotation(self):
             pass
 
-        @test_mixin
+        @mixin
         def overloaded_annotation(self):
             '''this is to test overloading annotated methods'''
 
     class MixinTestDummy(MixinTestBase, MixinTestMixin):
 
-        @test_mixin
+        @mixin
         def second_annotation(self):
             pass
 
-        @test_mixin
+        @mixin
         def overloaded_annotation(self):
             '''this is to test overloading annotated methods'''
 
@@ -175,82 +175,88 @@ except error.SerializeCompatError as err:
     skip_msg = str(err)
 
 
-class TestAnnotation(common.TestCase):
+class TestAnnotation(object):
 
-    def setUp(self):
-        super(TestAnnotation, self).setUp()
+    @pytest.fixture(autouse=True)
+    def skip_if_annotate_missing(self):
         if annotate is None:
-            raise unittest.SkipTest(skip_msg)
+            pytest.skip(skip_msg)
 
-    def testMixin(self):
-        self.assertEqual(MixinTestBase.values.keys(),
-                         [MixinTestBase.first_annotation.__func__])
-        self.assertEqual(set(MixinTestDummy.values.keys()),
-                         set([MixinTestBase.first_annotation.__func__,
-                              MixinTestDummy.second_annotation.__func__,
-                              MixinTestDummy.overloaded_annotation.__func__,
-                              MixinTestMixin.mixin_annotation.__func__,
-                              MixinTestMixin.overloaded_annotation.__func__]))
+    def test_mix_in(self):
+        assert (
+            MixinTestBase.values.keys() ==
+            [MixinTestBase.first_annotation.__func__]
+        )
+        assert (
+            set(MixinTestDummy.values.keys()),
+            set([
+                MixinTestBase.first_annotation.__func__,
+                MixinTestDummy.second_annotation.__func__,
+                MixinTestDummy.overloaded_annotation.__func__,
+                MixinTestMixin.mixin_annotation.__func__,
+                MixinTestMixin.overloaded_annotation.__func__])
+        )
 
         # now check that the _register call has been done with correct cls
         # as the parameter
-        self.assertFalse(hasattr(MixinTestMixin, "values"))
+        assert not hasattr(MixinTestMixin, "values")
 
         def get_cls(fun):
             return MixinTestDummy.values.get(fun)
 
-        self.assertEqual(MixinTestBase,
-                         get_cls(MixinTestBase.first_annotation.__func__))
-        self.assertEqual(MixinTestDummy,
-                         get_cls(MixinTestDummy.second_annotation.__func__))
-        self.assertEqual(MixinTestDummy,
-                    get_cls(MixinTestDummy.overloaded_annotation.__func__))
-        self.assertEqual(MixinTestDummy,
-                    get_cls(MixinTestMixin.overloaded_annotation.__func__))
-        self.assertEqual(MixinTestDummy,
-                         get_cls(MixinTestMixin.mixin_annotation.__func__))
+        assert (
+            MixinTestBase ==
+            get_cls(MixinTestBase.first_annotation.__func__))
+        assert (
+            MixinTestDummy ==
+            get_cls(MixinTestDummy.second_annotation.__func__))
+        assert (
+            MixinTestDummy ==
+            get_cls(MixinTestDummy.overloaded_annotation.__func__))
+        assert (
+            MixinTestDummy ==
+            get_cls(MixinTestMixin.overloaded_annotation.__func__))
+        assert (
+            MixinTestDummy ==
+            get_cls(MixinTestMixin.mixin_annotation.__func__))
 
     def testMetaErrors(self):
-        self.assertTrue(bad_annotation_method_fail)
+        assert bad_annotation_method_fail
 
     def testInitialization(self):
-        self.assertTrue(Annotated.class_init)
-        self.assertFalse(Annotated.obj_init)
+        assert Annotated.class_init
+        assert not Annotated.obj_init
         obj = Annotated("Monthy")
-        self.assertTrue(obj.class_init)
-        self.assertTrue(obj.obj_init)
+        assert obj.class_init
+        assert obj.obj_init
 
     def testAnnotations(self):
-        self.assertTrue(hasattr(Annotated, "get_parrot"))
-        self.assertTrue(hasattr(Annotated, "get_slug"))
+        assert hasattr(Annotated, "get_parrot")
+        assert hasattr(Annotated, "get_slug")
         obj = Annotated("Monthy")
-        self.assertTrue(hasattr(obj, "get_parrot"))
-        self.assertTrue(hasattr(obj, "get_slug"))
-        self.assertEqual("Monthy parrot is dead", obj.get_parrot())
-        self.assertEqual("Monthy slug is mute", obj.get_slug())
+        assert hasattr(obj, "get_parrot")
+        assert hasattr(obj, "get_slug")
+        assert "Monthy parrot is dead" == obj.get_parrot()
+        assert "Monthy slug is mute" == obj.get_slug()
 
     def testDecorator(self):
-        self.assertTrue(hasattr(Annotated, "spam"))
-        self.assertTrue(hasattr(Annotated, "bacon"))
-        self.assertTrue(hasattr(Annotated, "original_spam"))
-        self.assertTrue(hasattr(Annotated, "original_bacon"))
-        self.assertTrue(hasattr(Annotated, "beans"))
-        self.assertTrue(hasattr(Annotated, "eggs"))
+        assert hasattr(Annotated, "spam")
+        assert hasattr(Annotated, "bacon")
+        assert hasattr(Annotated, "original_spam")
+        assert hasattr(Annotated, "original_bacon")
+        assert hasattr(Annotated, "beans")
+        assert hasattr(Annotated, "eggs")
 
-        self.assertTrue("beans" in Annotated.accompaniments)
-        self.assertTrue("eggs" in Annotated.accompaniments)
+        assert "beans" in Annotated.accompaniments
+        assert "eggs" in Annotated.accompaniments
 
         obj = Annotated("Monthy")
 
-        self.assertEqual("Monthy like a lot of spam and beans",
-                         obj.spam("a lot of"))
-        self.assertEqual("Monthy like so much bacon and eggs",
-                         obj.bacon("so much"))
+        assert "Monthy like a lot of spam and beans" == obj.spam("a lot of")
+        assert "Monthy like so much bacon and eggs" == obj.bacon("so much")
 
-        self.assertEqual("Monthy like a lot of spam",
-                         obj.original_spam("a lot of"))
-        self.assertEqual("Monthy like so much bacon",
-                         obj.original_bacon("so much"))
+        assert "Monthy like a lot of spam" == obj.original_spam("a lot of")
+        assert "Monthy like so much bacon" == obj.original_bacon("so much")
 
-        self.assertEqual("Monthy wants beans", obj.beans())
-        self.assertEqual("Monthy wants eggs", obj.eggs())
+        assert "Monthy wants beans" == obj.beans()
+        assert "Monthy wants eggs" == obj.eggs()

@@ -21,9 +21,9 @@
 # Headers in this file shall remain intact.
 
 from __future__ import absolute_import
-import unittest
 
-from . import common
+import pytest
+
 import serialization
 from serialization.common import error
 
@@ -66,77 +66,75 @@ except error.SerializeCompatError as err:
     skip_msg = str(err)
 
 
-class TestFormatable(common.TestCase):
+class TestFormatable(object):
 
-    def setUp(self):
-        super(TestFormatable, self).setUp()
+    @pytest.fixture(autouse=True)
+    def test_skip_if_missing(self):
         if formatable is None:
-            raise unittest.SkipTest(skip_msg)
+            pytest.skip(skip_msg)
 
-    def testConstructing(self):
+    def test_constructing(self):
         base = Base(field1=2)
-        self.assertEqual(2, base.field1)
-        self.assertEqual(5, base.field2)
+        assert 2 == base.field1
+        assert 5 == base.field2
 
-        self.assertEquals(2, len(base._fields))
+        assert 2 == len(base._fields)
 
         def get_field3(instance):
             return instance.field3
 
-        self.assertRaises(AttributeError, get_field3, base)
+        with pytest.raises(AttributeError):
+            get_field3(base)
 
-    def testOverwritedDefault(self):
+    def test_overwrited_default(self):
         child = Child()
-        self.assertEqual('overwritten default', child.field1)
+        assert 'overwritten default' == child.field1
 
-    def testUnknownAttributesInContructor(self):
+    def test_unknown_attributes_in_contructor(self):
+        with pytest.raises(AttributeError):
+            Base(unknown_field=2)
 
-        def construct():
-            i = Base(unknown_field=2)
-            return i
-
-        self.assertRaises(AttributeError, construct)
-
-    def testSnapshot(self):
+    def test_snapshot(self):
         base = Base(field1=2)
         snapshot = base.snapshot()
-        self.assertIsInstance(snapshot, dict)
-        self.assertIn('custom_serializable', snapshot)
-        self.assertEqual(5, snapshot['custom_serializable'])
-        self.assertIn('field1', snapshot)
-        self.assertEqual(2, snapshot['field1'])
+        assert isinstance(snapshot, dict)
+        assert 'custom_serializable' in snapshot
+        assert 5 == snapshot['custom_serializable']
+        assert 'field1' in snapshot
+        assert 2 == snapshot['field1']
 
-    def testDefaultValueOverridenWithNone(self):
+    def test_default_value_overriden_with_none(self):
         base = Base(field2=None)
         snapshot = base.snapshot()
-        self.assertIsInstance(snapshot, dict)
-        self.assertIn('custom_serializable', snapshot)
-        self.assertEqual(None, snapshot['custom_serializable'])
-        self.assertNotIn('field1', snapshot)
+        assert isinstance(snapshot, dict)
+        assert 'custom_serializable' in snapshot
+        assert snapshot['custom_serializable'] is None
+        assert 'field1' not in snapshot
 
-    def testRecover(self):
+    def test_recover(self):
         snapshot = dict(field1=5, custom_serializable=4, field3=1)
         instance = Child.__new__(Child)
         instance.recover(snapshot)
-        self.assertEqual(5, instance.field1)
-        self.assertEqual(4, instance.field2)
-        self.assertEqual(1, instance.field3)
+        assert 5 == instance.field1
+        assert 4 == instance.field2
+        assert 1 == instance.field3
 
-    def testRecoverNoneValueOverridenWithNone(self):
+    def test_recover_none_value_overriden_with_none(self):
         snapshot = dict(field1=5, custom_serializable=None)
         instance = Base.__new__(Base)
         instance.recover(snapshot)
-        self.assertEqual(5, instance.field1)
-        self.assertEqual(None, instance.field2)
+        assert 5 == instance.field1
+        assert None == instance.field2
 
-    def testNoneValues(self):
+    def test_none_values(self):
         base = Base(field1=0, field2=[])
-        self.assertEqual(0, base.field1)
-        self.assertEqual([], base.field2)
+        assert 0 == base.field1
+        assert [] == base.field2
 
-    def testPropertySetters(self):
+    def test_property_setters(self):
         a = PropertyTest(element=2)
-        self.assertEqual([2], a.array)
-        self.assertEqual(2, a.element)
+        assert [2] == a.array
+        assert 2 == a.element
 
-        self.assertRaises(AttributeError, PropertyTest, readonly=2)
+        with pytest.raises(AttributeError):
+            PropertyTest(readonly=2)

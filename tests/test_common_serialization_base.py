@@ -28,8 +28,6 @@ from __future__ import absolute_import
 import serialization
 from serialization import base
 
-from . import common
-
 
 class A(serialization.Serializable):
 
@@ -95,14 +93,14 @@ class ListSerializableDummy(serialization.Serializable):
         return self.values == value.values
 
 
-class TestSerializable(common.TestCase):
+class TestSerializable(object):
 
-    def testTypename(self):
-        self.assertEqual(A.type_name, __name__ + "." + "A")
-        self.assertEqual(B.type_name, __name__ + "." + "B")
-        self.assertEqual(C.type_name, "Custom")
-        self.assertEqual(D.type_name, "D")
-        self.assertEqual(E.type_name, __name__ + "." + "E")
+    def test_typename(self):
+        assert A.type_name == __name__ + "." + "A"
+        assert B.type_name == __name__ + "." + "B"
+        assert C.type_name == "Custom"
+        assert D.type_name == "D"
+        assert E.type_name == __name__ + "." + "E"
 
         a = A(42)
         b = B(12, 18)
@@ -110,80 +108,80 @@ class TestSerializable(common.TestCase):
         d = D(1)
         e = E(2, 3)
 
-        self.assertEqual(a.type_name, __name__ + "." + "A")
-        self.assertEqual(b.type_name, __name__ + "." + "B")
-        self.assertEqual(c.type_name, "Custom")
-        self.assertEqual(d.type_name, "D")
-        self.assertEqual(e.type_name, __name__ + "." + "E")
+        assert a.type_name == __name__ + "." + "A"
+        assert b.type_name == __name__ + "." + "B"
+        assert c.type_name == "Custom"
+        assert d.type_name == "D"
+        assert e.type_name == __name__ + "." + "E"
 
-    def testSnapshot(self):
+    def test_snapshot(self):
         a = A(42)
-        self.assertEqual(a.x, 42)
-        self.assertEqual(a.snapshot(), {"x": 42})
+        assert a.x == 42
+        assert a.snapshot() == {"x": 42}
 
         b = B(12, 18)
-        self.assertEqual(b.x, 12)
-        self.assertEqual(b.y, 18)
-        self.assertEqual(b.snapshot(), {"x": 12, "y": 18})
+        assert b.x == 12
+        assert b.y == 18
+        assert b.snapshot() == {"x": 12, "y": 18}
 
         c = C(66)
-        self.assertEqual(c.z, 66)
-        self.assertEqual(c.snapshot(), {"z": 66})
+        assert c.z == 66
+        assert c.snapshot() == {"z": 66}
 
         d = D(1)
-        self.assertEqual(d.u, 1)
-        self.assertEqual(d.snapshot(), 1)
+        assert d.u == 1
+        assert d.snapshot() == 1
 
         e = E(2, 3)
-        self.assertEqual(e.u, 2)
-        self.assertEqual(e.v, 3)
-        self.assertEqual(e.snapshot(), (2, 3))
+        assert e.u == 2
+        assert e.v == 3
+        assert e.snapshot() == (2, 3)
 
-    def testRestore(self):
+    def test_restore(self):
         a = A.restore({"x": 42})
-        self.assertEqual(a.x, 42)
+        assert a.x == 42
 
         b = B.restore({"x": 12, "y": 18})
-        self.assertEqual(b.x, 12)
-        self.assertEqual(b.y, 18)
+        assert b.x == 12
+        assert b.y == 18
 
         c = C.restore({"z": 66})
-        self.assertEqual(c.z, 66)
+        assert c.z == 66
 
         d = D.restore(1)
-        self.assertEqual(d.u, 1)
+        assert d.u == 1
 
         e = E.restore((2, 3))
-        self.assertEqual(e.u, 2)
-        self.assertEqual(e.v, 3)
+        assert e.u == 2
+        assert e.v == 3
 
-    def testSnapshotRestore(self):
+    def test_snapshot_restore(self):
         a1 = A(42)
         a2 = A.restore(a1.snapshot())
-        self.assertEqual(a2.x, 42)
-        self.assertNotEqual(a1, a2)
+        assert a2.x == 42
+        assert a1 != a2
 
         b1 = B(12, 18)
         b2 = B.restore(b1.snapshot())
-        self.assertEqual(b2.x, 12)
-        self.assertEqual(b2.y, 18)
-        self.assertNotEqual(b1, b2)
+        assert b2.x == 12
+        assert b2.y == 18
+        assert b1 != b2
 
         c1 = C(66)
         c2 = C.restore(c1.snapshot())
-        self.assertEqual(c2.z, 66)
-        self.assertNotEqual(c1, c2)
+        assert c2.z == 66
+        assert c1 != c2
 
         d1 = D(1)
         d2 = D.restore(d1.snapshot())
-        self.assertEqual(d2.u, 1)
-        self.assertNotEqual(d1, d2)
+        assert d2.u == 1
+        assert d1 != d2
 
         e1 = E(2, 3)
         e2 = E.restore(e1.snapshot())
-        self.assertEqual(e2.u, 2)
-        self.assertEqual(e2.v, 3)
-        self.assertNotEqual(e1, e2)
+        assert e2.u == 2
+        assert e2.v == 3
+        assert e1 != e2
 
 
 class DummyVerAdapter1(base.VersionAdapter):
@@ -223,7 +221,7 @@ class DummyVerAdapter2(base.VersionAdapter):
         return data
 
 
-class TestVersionAdapter(common.TestCase):
+class TestVersionAdapter(object):
 
     def check_combinations(self, adapter, ver_range, expected):
         result = {}
@@ -233,13 +231,13 @@ class TestVersionAdapter(common.TestCase):
                 if value:
                     result[(a, b)] = value
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
-    def testNoAdaption(self):
+    def test_no_adaption(self):
         self.check_combinations(DummyVerAdapter1, range(1, 10), {})
         self.check_combinations(DummyVerAdapter1(), range(1, 10), {})
 
-    def testDummyAdaption(self):
+    def test_dummy_adaption(self):
         expected = {(1, 3): ['U3'],
                     (1, 4): ['U3'],
                     (1, 5): ['U3'],

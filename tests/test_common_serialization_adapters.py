@@ -25,11 +25,9 @@
 
 from __future__ import absolute_import
 
+import pytest
 # unuse import adapters but its needed
 from serialization import sexp, adapters
-from serialization.interface.serialization import *
-
-from . import common
 
 
 class DummyError(Exception):
@@ -48,37 +46,46 @@ class OtherException(Exception):
     pass
 
 
-class TestAdapters(common.TestCase):
+class TestAdapters(object):
 
-    def setUp(self):
-        self.serializer = sexp.Serializer()
-        self.unserializer = sexp.Unserializer()
+    @pytest.fixture
+    def serializer(self):
+        return sexp.Serializer()
 
-    def pingpong(self, value):
-        data = self.serializer.convert(value)
-        return self.unserializer.convert(data)
+    @pytest.fixture
+    def unserializer(self):
+        return sexp.Unserializer()
 
-    def testExceptionAdapter(self):
+    @pytest.fixture
+    def pingpong(self, serializer, unserializer):
+
+        def pingpong(value):
+            data = serializer.convert(value)
+            return unserializer.convert(data)
+
+        return pingpong
+
+    def test_exception_adapter(self, pingpong):
         value1 = ValueError("some", "argument", 42)
-        result1a = self.pingpong(value1)
-        self.assertTrue(isinstance(result1a, type(value1)))
-        self.assertEqual(result1a, value1)
-        result1b = self.pingpong(result1a)
-        self.assertTrue(isinstance(result1b, type(value1)))
-        self.assertEqual(result1b, value1)
-        self.assertEqual(result1b, result1a)
-        self.assertEqual(type(result1b), type(result1a))
-        self.assertEqual(type(result1a).__bases__[0], type(value1))
-        self.assertEqual(type(result1b).__bases__[0], type(value1))
+        result1a = pingpong(value1)
+        assert isinstance(result1a, type(value1))
+        assert result1a == value1
+        result1b = pingpong(result1a)
+        assert isinstance(result1b, type(value1))
+        assert result1b == value1
+        assert result1b == result1a
+        assert type(result1b) == type(result1a)
+        assert type(result1a).__bases__[0] == type(value1)
+        assert type(result1b).__bases__[0] == type(value1)
 
         value2 = DummyError("some", "argument", 42)
-        result2 = self.pingpong(value2)
-        self.assertTrue(isinstance(result2, type(value2)))
-        self.assertEqual(result2, value2)
+        result2 = pingpong(value2)
+        assert isinstance(result2, type(value2))
+        assert result2 == value2
 
-        self.assertNotEqual(result1a, result2)
+        assert result1a != result2
 
-    def testUnserializeUnicodeError(self):
+    def test_unserialize_unicode_error(self, unserializer):
         a = ('{'
              '".state": [".tuple", ['
              '".type", "exceptions.UnicodeEncodeError"], '
@@ -88,5 +95,5 @@ class TestAdapters(common.TestCase):
              'Match code=0", 44, 46, "ordinal not in range(128)"],'
              ' {}], '
              '".type": "exception"}')
-        ex = self.unserializer.convert(a)
+        ex = unserializer.convert(a)
         str(ex)  # this line was causing seg fault before the fix

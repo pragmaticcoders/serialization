@@ -31,6 +31,7 @@ import types
 from past.types import long, unicode
 
 from six import with_metaclass, PY3
+import pytest
 
 from builtins import range
 from builtins import object
@@ -44,15 +45,11 @@ try:
 except:
     NotKnown = None
 
-from unittest import SkipTest
-
 import serialization
 from serialization.common import enum
 from serialization import base
 from serialization.interface.serialization import Capabilities, ISnapshotable
 from serialization.interface.serialization import ISerializable
-
-from . import common
 
 
 def qual(clazz):
@@ -155,7 +152,7 @@ class TestTypeSerializationDummyWithMeta(
     # this dict so we need some other __other_field__ to ident it
 
 
-class ConverterTest(common.TestCase):
+class ConverterTestHelper(object):
     '''Base classes for convert test cases.
 
     Sub-classes should override convertion_table() to return
@@ -182,25 +179,16 @@ class ConverterTest(common.TestCase):
     See test_common_serialization_pytree.py for examples.
     '''
 
-    def setUp(self):
+    def __init__(self):
         self.ext_val = SerializableDummy()
         self.ext_val.str = "externalized"  # Just for it be different
         self.ext_snap_val = SnapshotableDummy(42)
-
         self.externalizer = base.Externalizer()
         self.externalizer.add(self.ext_val)
         self.externalizer.add(self.ext_snap_val)
 
-    def tearDown(self):
-        self.externalizer.remove(self.ext_val)
-
-    @classmethod
-    def setUpClass(cls):
-        if cls is ConverterTest:
-            cls.skipBaseClass()
-        super(ConverterTest, cls).setUpClass()
-
-    def testUnserialization(self):
+    def check_unserialization(
+            self, serializer, unserializer, convertion_table):
 
         def inverter(gen):
             while True:
@@ -212,73 +200,41 @@ class ConverterTest(common.TestCase):
                     t1, v1, a1, t2, v2, a2, c = record
                     yield t2, v2, a2, t1, v1, a1, c
                 else:
-                    self.fail("Unexpected conversion table record:\nRECORD: %r"
-                              % (record, ))
+                    pytest.fail(
+                        "Unexpected conversion table record:\nRECORD: %r"
+                        % (record, ))
 
-        if self.unserializer is None:
-            raise SkipTest("No unserializer, cannot test convertion")
+        capabilities = unserializer.converter_capabilities
+        table = convertion_table(capabilities, False)
+        self._check_convertion(
+            inverter(table), unserializer.convert, capabilities=capabilities)
 
-        capabilities = self.unserializer.converter_capabilities
-        table = self.convertion_table(capabilities, False)
-        self.checkConvertion(inverter(table),
-                             self.unserializer.convert,
-                             capabilities=capabilities)
+    def check_serialization(self, serializer, convertion_table):
+        capabilities = serializer.converter_capabilities
+        table = convertion_table(capabilities, False)
+        self._check_convertion(
+            table, serializer.convert, capabilities=capabilities)
 
-    def testSerialization(self):
-        if self.serializer is None:
-            raise SkipTest("No serializer, cannot test convertion")
+    def check_freezing(self, serializer, convertion_table):
+        capabilities = serializer.freezer_capabilities
+        table = convertion_table(capabilities, True)
+        self._check_convertion(
+            table, serializer.freeze, capabilities=capabilities)
 
-        capabilities = self.serializer.converter_capabilities
-        table = self.convertion_table(capabilities, False)
-        self.checkConvertion(table, self.serializer.convert,
-                             capabilities=capabilities)
-
-    def testFreezing(self):
-        if self.serializer is None:
-            raise SkipTest("No serializer, cannot test convertion")
-
-        capabilities = self.serializer.freezer_capabilities
-        table = self.convertion_table(capabilities, True)
-        self.checkConvertion(table, self.serializer.freeze,
-                             capabilities=capabilities)
-
-    def testSymmetry(self):
-        if self.unserializer is None:
-            raise SkipTest("No unserializer, cannot test for symmetry")
-
-        if self.serializer is None:
-            raise SkipTest("No serializer, cannot test for symmetry")
-
-        cap1 = self.unserializer.converter_capabilities
-        cap2 = self.serializer.converter_capabilities
+    def check_symmetry(self, serializer, unserializer):
+        cap1 = unserializer.converter_capabilities
+        cap2 = serializer.converter_capabilities
         capabilities = cap1.intersection(cap2)
-        self.checkSymmetry(self.serializer.convert,
-                           self.unserializer.convert,
-                           capabilities=capabilities)
+        self._check_symmetry(
+            serializer.convert, unserializer.convert,
+            capabilities=capabilities)
 
-    def serialize(self, data):
-        return self.serializer.convert(data)
-
-    def unserialize(self, data):
-        return self.unserializer.convert(data)
-
-    def assertEqualButDifferent(self, value, expected, strict=True):
-        '''Asserts that two value are equal but are different instances.
-        It will recurse python structure and object instances
-        and ensure everything is equal but different.
-        If the expected value contains multiple references to the same value,
-        it ensures the other value contains a references to its own value.'''
-        self._assertEqualButDifferent(value, expected, 0, {}, {},
-                                      strict=strict)
-
-    def checkConvertion(self, table, converter, capabilities=None):
+    def _check_convertion(self, table, converter, capabilities=None):
         # If int and long types are considered equals
         generic_int = (capabilities is not None
                        and Capabilities.int_values in capabilities
                        and Capabilities.long_values in capabilities)
 
-        if table is None:
-            raise SkipTest("No convertion table")
         for record in table:
             if len(record) == 5:
                 _t1, v1, t2, v2, c = record
@@ -293,8 +249,9 @@ class ConverterTest(common.TestCase):
                 exp_values = v2 + a2
                 should_be_copied = c
             else:
-                self.fail("Unexpected conversion table record:\nRECORD: %r"
-                          % (record, ))
+                pytest.fail(
+                    "Unexpected conversion table record:\nRECORD: %r"
+                    % (record, ))
 
             exp_types, exp_type_names = self._exp_types(exp_type)
 
@@ -302,18 +259,11 @@ class ConverterTest(common.TestCase):
                 result = converter(value)
 
                 # Check type
-                self.assertTrue(isinstance(result, exp_types),
-                                "Converted value with type %s instead "
-                                "of %s:\nVALUE: %r"
-                                % (type(result).__name__,
-                                    exp_type_names, result))
+                assert isinstance(result, exp_types)
 
                 # Check it's a copy, if required
                 if should_be_copied:
-                    self.assertIsNot(value, result,
-                                     "Input value and converted value "
-                                     "are a same instances:\nVALUE: %r"
-                                     % (value, ))
+                    assert value is not result
 
                 # Look for an expected value
                 for expected in exp_values:
@@ -321,14 +271,15 @@ class ConverterTest(common.TestCase):
                     if self.safe_equal(expected, result, generic_int):
                         break
                 else:
-                    self.fail("Value not converted to one of the expected "
-                              "values:\nVALUE:    %r\nRESULT:   %r\n%s"
-                              % (value, result,
-                                 "\n".join(["EXPECTED: " + repr(v)
-                                            for v in exp_values])))
+                    pytest.fail(
+                        "Value not converted to one of the expected "
+                        "values:\nVALUE:    %r\nRESULT:   %r\n%s"
+                        % (value, result,
+                            "\n".join(["EXPECTED: " + repr(v)
+                                        for v in exp_values])))
 
-    def checkSymmetry(self, serializer, deserializer, capabilities=None,
-                      strict=True):
+    def _check_symmetry(
+            self, serializer, deserializer, capabilities=None, strict=True):
 
         if capabilities is None:
             capabilities = base.DEFAULT_CONVERTER_CAPS
@@ -340,32 +291,25 @@ class ConverterTest(common.TestCase):
         for exp_type, values, must_change in self.symmetry_table(capabilities):
             exp_types, exp_type_names = self._exp_types(exp_type)
             for value in values:
-                self.assertTrue(issubclass(type(value), exp_types),
-                                "Expecting value %r to have type %s, not %s"
-                                % (value, exp_type_names,
-                                   type(value).__name__))
+                assert issubclass(type(value), exp_types)
                 data = serializer(value)
                 result = deserializer(data)
-                self.assertTrue(issubclass(type(result), exp_types),
-                                "Expecting result %r to have type %s, not %s"
-                                % (result, exp_type_names,
-                                   type(result).__name__))
+                assert issubclass(type(result), exp_types)
+
                 for v in values:
                     if self.safe_equal(result, v, generic_int, strict=strict):
                         expected = v
                         break
                 else:
-                    self.fail("Value not one of the expected values:\n"
-                              "VALUE:    %r\nRESULT:   %r\n%s"
-                              % (value, result,
-                                 "\n".join(["EXPECTED: " + repr(v)
-                                            for v in values])))
+                    pytest.fail(
+                        "Value not one of the expected values:\n"
+                        "VALUE:    %r\nRESULT:   %r\n%s" % (
+                            value, result,
+                            "\n".join(["EXPECTED: " + repr(v)
+                                       for v in values])))
                 if must_change:
-                    self.assertEqualButDifferent(result, expected,
-                                                 strict=strict)
-
-    def convertion_table(self, capabilities, freezing):
-        raise SkipTest("No convertion table")
+                    assert_equal_but_different(
+                        result, expected, 0, {}, {}, strict=strict)
 
     def symmetry_table(self, capabilities):
         valdesc = [(Capabilities.int_values, Capabilities.int_keys,
@@ -746,7 +690,7 @@ class ConverterTest(common.TestCase):
     def _safe_equal(self, a, b, idx, arefs, brefs, gint, is__dict__=False,
                     strict=False):
         if not strict:
-            a, b = self._get_ResolvedDereference(a, b)
+            a, b = _get_resolved_dereference(a, b)
 
         if a is b:
             return True
@@ -849,94 +793,90 @@ class ConverterTest(common.TestCase):
                 if not self._safe_equal(v1, v2, idx + 1, arefs, brefs, gint):
                     return False
             return True
-        raise RuntimeError("I don't know how to compare %r and %r" % (a, b))
+        pytest.fail("I don't know how to compare %r and %r" % (a, b))
 
-    def _get_ResolvedDereference(self, *objs):
-        r = []
-        for obj in objs:
-            if NotKnown is not None and isinstance(obj, NotKnown) and \
-               obj.resolved >= 1:
-                r.append(obj.resolvedObject)
-            else:
-                r.append(obj)
-        return r
 
-    def _assertEqualButDifferent(self, value, expected, idx, valids, expids,
-                                 strict=True):
-        '''idx is used to identify every values uniquely to be able to verify
-        references are made to the same value, valids and expids are
-        dictionaries with instance id() for key and idx for value.
-        Types and interfaces are assumed to be immutable atoms.'''
-
-        # Only check references for type that can be referenced.
-        # Let the immutable type do what they want, sometime strings
-        # are interned sometime no, we don't care.
-        if not isinstance(expected, (int, long, float, bool,
-                                     str, unicode, type(None))):
-            # Get unique instance identifiers
-            if not strict:
-                value, expected = self._get_ResolvedDereference(
-                    value, expected)
-            expid = id(expected)
-            valid = id(value)
-
-            if expid in expids:
-                # Expected value is a reference, check the other value is too
-                self.assertTrue(valid in valids)
-                # Check the two reference the same value inside the structure
-                self.assertEqual(valids[valid], expids[expid])
-                return idx
-
-            # Check the other value is not a reference if it wasn't expected
-            self.assertFalse(valid in valids)
-
-            # Store the instance identifiers for later checks
-            expids[expid] = idx
-            valids[valid] = idx
-
-        if expected is None:
-            self.assertEqual(expected, value)
-        elif isinstance(expected, (list, tuple)):
-            if expected != ():  # Special case for tuple singleton
-                self.assertIsNot(expected, value)
-
-            self.assertEqual(len(expected), len(value))
-            for exp, val in zip(expected, value):
-                idx = self._assertEqualButDifferent(val, exp, idx + 1,
-                                                    valids, expids,
-                                                    strict=strict)
-        elif isinstance(expected, set):
-            self.assertEqual(len(expected), len(value))
-            for exp in expected:
-                self.assertTrue(exp in value)
-                val = [v for v in value if v == exp][0]
-                idx = self._assertEqualButDifferent(val, exp, idx + 1,
-                                                    valids, expids,
-                                                    strict=strict)
-        elif isinstance(expected, dict):
-            self.assertEqual(len(expected), len(value))
-            for exp_key, exp_val in expected.items():
-                self.assertTrue(exp_key in value)
-                val_key = [k for k in value if k == exp_key][0]
-                val_val = value[val_key]
-                idx = self._assertEqualButDifferent(val_key, exp_key, idx + 1,
-                                                    valids, expids,
-                                                    strict=strict)
-                idx = self._assertEqualButDifferent(val_val, exp_val, idx + 1,
-                                                    valids, expids,
-                                                    strict=strict)
-        elif isinstance(value, float):
-            self.assertAlmostEqual(value, expected)
-        elif isinstance(value, (int, long, bool, str, unicode,
-                                type, InterfaceClass)):
-            self.assertEqual(value, expected)
+def _get_resolved_dereference(*objs):
+    r = []
+    for obj in objs:
+        if (NotKnown is not None and isinstance(obj, NotKnown) and
+            obj.resolved >= 1):
+            r.append(obj.resolvedObject)
         else:
-            self.assertIsNot(expected, value)
-            if ISerializable.providedBy(expected):
-                self.assertTrue(ISerializable.providedBy(value))
-            idx = self._assertEqualButDifferent(value.__dict__,
-                                                expected.__dict__,
-                                                idx + 1,
-                                                valids, expids,
-                                                strict=strict)
-        return idx
+            r.append(obj)
+    return r
+
+
+def assert_equal_but_different(
+        value, expected, idx, valids, expids, strict=True):
+    '''
+    idx is used to identify every values uniquely to be able to verify
+    references are made to the same value, valids and expids are
+    dictionaries with instance id() for key and idx for value.
+    Types and interfaces are assumed to be immutable atoms.'''
+
+    # Only check references for type that can be referenced.
+    # Let the immutable type do what they want, sometime strings
+    # are interned sometime no, we don't care.
+    basic_types = (int, long, float, bool, str, unicode, type(None))
+    if not isinstance(expected, basic_types):
+        # Get unique instance identifiers
+        if not strict:
+            value, expected = _get_resolved_dereference(value, expected)
+        expid = id(expected)
+        valid = id(value)
+
+        if expid in expids:
+            # Expected value is a reference, check the other value is too
+            assert valid in valids
+            # Check the two reference the same value inside the structure
+            assert valids[valid] == expids[expid]
+            return idx
+
+        # Check the other value is not a reference if it wasn't expected
+        assert valid not in valids
+
+        # Store the instance identifiers for later checks
+        expids[expid] = idx
+        valids[valid] = idx
+
+    if expected is None:
+        assert expected == value
+    elif isinstance(expected, (list, tuple)):
+        if expected != ():  # Special case for tuple singleton
+            assert value is not expected
+
+        assert len(expected) == len(value)
+        for exp, val in zip(expected, value):
+            idx = assert_equal_but_different(
+                val, exp, idx + 1, valids, expids, strict=strict)
+    elif isinstance(expected, set):
+        assert len(expected) == len(value)
+        for exp in expected:
+            assert exp in value
+            val = [v for v in value if v == exp][0]
+            idx = assert_equal_but_different(
+                val, exp, idx + 1, valids, expids, strict=strict)
+    elif isinstance(expected, dict):
+        assert len(expected) == len(value)
+        for exp_key, exp_val in expected.items():
+            assert exp_key in value
+            val_key = [k for k in value if k == exp_key][0]
+            val_val = value[val_key]
+            idx = assert_equal_but_different(
+                val_key, exp_key, idx + 1, valids, expids, strict=strict)
+            idx = assert_equal_but_different(
+                val_val, exp_val, idx + 1, valids, expids, strict=strict)
+    elif isinstance(value, float):
+        assert round(value - expected, 7) == 0
+    elif isinstance(value, (int, long, bool, str, unicode,
+                            type, InterfaceClass)):
+        assert value == expected
+    else:
+        assert expected is not value
+        if ISerializable.providedBy(expected):
+            assert ISerializable.providedBy(value)
+        idx = assert_equal_but_different(
+            value.__dict__, expected.__dict__, idx + 1, valids, expids,
+            strict=strict)
+    return idx
