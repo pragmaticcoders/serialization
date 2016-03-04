@@ -24,14 +24,6 @@ from __future__ import absolute_import
 
 from future.utils import PY3
 
-from serialization.common import error
-
-if PY3:
-    raise error.SerializeCompatError(
-        'Working only for python 2'
-    )
-
-
 from six import with_metaclass
 
 from . import reflect

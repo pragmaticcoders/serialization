@@ -24,16 +24,9 @@
 
 from __future__ import absolute_import
 
-from future.utils import PY3
-
 from serialization.common import error
 
-if PY3:
-    raise error.SerializeCompatError(
-        'Working only for python 2'
-    )
-
-from six import with_metaclass
+from six import with_metaclass, iterkeys, iteritems
 import copy
 
 import serialization
@@ -92,7 +85,7 @@ class Formatable(with_metaclass(
 
     def _set_fields(self, dictionary):
         properties = dict()
-        for key in dictionary.keys():
+        for key in list(iterkeys(dictionary)):
             find = [x for x in self._fields if x.name == key]
             if len(find) != 1:
                 p = getattr(type(self), key, None)
@@ -113,7 +106,7 @@ class Formatable(with_metaclass(
             setattr(self, field.name, value)
 
         # finally process the property setters
-        for key, value in properties.iteritems():
+        for key, value in iteritems(properties):
             setattr(self, key, value)
 
     def __eq__(self, other):

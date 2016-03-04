@@ -43,8 +43,10 @@ except ImportError:
     sexp = None
     jelly = None
     Jellyable = object
-    skip_msg = '`twisted.spread` needed by this serializer is'
-    ' avialabe only for python 2'
+    skip_msg = (
+        '`twisted.spread` needed by this serializer is'
+        ' available only for python 2'
+    )
 
 import serialization
 from serialization.common import reflect

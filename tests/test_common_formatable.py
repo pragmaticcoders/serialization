@@ -26,52 +26,42 @@ import pytest
 
 import serialization
 from serialization.common import error
+from serialization.common import formatable
 
 
-try:
-    from serialization.common import formatable
+@serialization.register
+class Base(formatable.Formatable):
 
-    @serialization.register
-    class Base(formatable.Formatable):
-
-        formatable.field('field1', None)
-        formatable.field('field2', 5, 'custom_serializable')
-
-    @serialization.register
-    class Child(Base):
-
-        formatable.field('field1', 'overwritten default')
-        formatable.field('field3', None)
-
-    @serialization.register
-    class PropertyTest(formatable.Formatable):
-
-        formatable.field('array', list())
-
-        @property
-        def element(self):
-            return self.array and self.array[-1]
-
-        @element.setter
-        def element(self, value):
-            self.array.append(value)
-
-        @property
-        def readonly(self):
-            return 'readonly'
+    formatable.field('field1', None)
+    formatable.field('field2', 5, 'custom_serializable')
 
 
-except error.SerializeCompatError as err:
-    formatable = None
-    skip_msg = str(err)
+@serialization.register
+class Child(Base):
+
+    formatable.field('field1', 'overwritten default')
+    formatable.field('field3', None)
+
+
+@serialization.register
+class PropertyTest(formatable.Formatable):
+
+    formatable.field('array', list())
+
+    @property
+    def element(self):
+        return self.array and self.array[-1]
+
+    @element.setter
+    def element(self, value):
+        self.array.append(value)
+
+    @property
+    def readonly(self):
+        return 'readonly'
 
 
 class TestFormatable(object):
-
-    @pytest.fixture(autouse=True)
-    def test_skip_if_missing(self):
-        if formatable is None:
-            pytest.skip(skip_msg)
 
     def test_constructing(self):
         base = Base(field1=2)

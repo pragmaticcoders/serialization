@@ -85,8 +85,6 @@ def class_locals(depth, tag=None):
     # Try to make sure we were called from a class def. In 2.2.0 we can't
     # check for __module__ since it doesn't seem to be added to the locals
     # until later on.  (Copied From zope.interfaces.declartion._implements)
-    if PY3:  # pragma NO COVER
-        raise error.SerializeCompatError('Class advice impossible in Python3')
     if (locals is frame.f_globals) or (
             ('__module__' not in locals) and sys.version_info[:3] > (2, 2, 0)):
         name = (tag and tag + " ") or ""

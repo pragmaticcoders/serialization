@@ -24,177 +24,175 @@
 # vi:si:et:sw=4:sts=4:ts=4
 from __future__ import absolute_import
 
-import pytest
+from future.utils import PY3
+from six import iterkeys
 
-from serialization.common import error
+from serialization.common import annotate
+
+
+class GoodDummy(annotate.Annotable):
+    '''Reference for the following test.'''
+
+    annotate.injectClassCallback("dummy", 2, "good_method")
+
+    @classmethod
+    def good_method(cls):
+        pass
+
+
+def accompany(accompaniment):
+    '''Method decorator'''
+
+    def decorator(method):
+
+        def get_accompaniment(self, *args, **kwargs):
+            #Create a method for the accompaniment
+            return self.name + " wants " + accompaniment
+
+        # Inject the new method in the class
+        annotate.injectAttribute("accompany", 3,
+                                 accompaniment, get_accompaniment)
+
+        # Inject the original method with a new name
+        annotate.injectAttribute("accompany", 3,
+                                 "original_" + method.__name__, method)
+
+        def wrapper(self, *args, **kwargs):
+            #Wrapp a method call and add an accompaniment to its result
+            result = method(self, *args, **kwargs)
+            return result + " and " + accompaniment
+
+        # Call the class to register the decorator
+        annotate.injectClassCallback("accompany", 3, "_decorator",
+                                     accompaniment, method, wrapper)
+
+        return wrapper
+    return decorator
+
+
+def shop(animal, status):
+    '''Class annotation. Create a getter method'''
+
+    def getter(self):
+        return self.name + " " + animal + " is " + status
+    annotate.injectAttribute("shop", 3, "get_" + animal, getter)
+    return status
+
+
+class Annotated(annotate.Annotable):
+    class_init = False
+    obj_init = False
+
+    accompaniments = {}
+
+    # Annotations
+
+    shop("parrot", "dead")
+    shop("slug", "mute")
+
+    @classmethod
+    def __class__init__(cls, name, bases, dct):
+        cls.class_init = True
+
+    @classmethod
+    def _decorator(cls, accompaniment, old, new):
+        cls.accompaniments[accompaniment] = (old, new)
+
+    def __init__(self, name):
+        self.obj_init = True
+        self.name = name
+
+    @accompany("beans")
+    def spam(self, kind):
+        return self.name + " like " + kind + " spam"
+
+    @accompany("eggs")
+    def bacon(self, kind):
+        return self.name + " like " + kind + " bacon"
 
 try:
-    from serialization.common import annotate
+    bad_annotation_method_fail = False
 
-    class GoodDummy(annotate.Annotable):
+    class BadDummy(annotate.Annotable):
         '''Reference for the following test.'''
 
-        annotate.injectClassCallback("dummy", 2, "good_method")
+        annotate.injectClassCallback("dummy", 2, "wrong_method")
 
         @classmethod
         def good_method(cls):
             pass
+except annotate.AnnotationError:
+    bad_annotation_method_fail = True
 
-    def accompany(accompaniment):
-        '''Method decorator'''
 
-        def decorator(method):
+def mixin(fun):
+    annotate.injectClassCallback("mixin", 3, "_register", fun)
+    return fun
 
-            def get_accompaniment(self, *args, **kwargs):
-                #Create a method for the accompaniment
-                return self.name + " wants " + accompaniment
 
-            # Inject the new method in the class
-            annotate.injectAttribute("accompany", 3,
-                                     accompaniment, get_accompaniment)
+class MixinTestBase(annotate.Annotable):
 
-            # Inject the original method with a new name
-            annotate.injectAttribute("accompany", 3,
-                                     "original_" + method.__name__, method)
+    values = None
 
-            def wrapper(self, *args, **kwargs):
-                #Wrapp a method call and add an accompaniment to its result
-                result = method(self, *args, **kwargs)
-                return result + " and " + accompaniment
+    @classmethod
+    def __class__init__(cls, name, bases, dct):
+        values = dict()
+        for base in [cls] + list(bases):
+            parent_values = getattr(base, "values", None)
+            if parent_values:
+                values.update(parent_values)
+        cls.values = values
 
-            # Call the class to register the decorator
-            annotate.injectClassCallback("accompany", 3, "_decorator",
-                                         accompaniment, method, wrapper)
+    @classmethod
+    def _register(cls, value):
+        if cls.values is None:
+            cls.values = dict()
+        assert value not in cls.values, "Values are: %r" % (cls.values, )
+        cls.values[value] = cls
 
-            return wrapper
-        return decorator
+    @mixin
+    def first_annotation(self):
+        pass
 
-    def shop(animal, status):
-        '''Class annotation. Create a getter method'''
 
-        def getter(self):
-            return self.name + " " + animal + " is " + status
-        annotate.injectAttribute("shop", 3, "get_" + animal, getter)
-        return status
+class MixinTestMixin(object):
 
-    class Annotated(annotate.Annotable):
-        class_init = False
-        obj_init = False
+    @mixin
+    def mixin_annotation(self):
+        pass
 
-        accompaniments = {}
+    @mixin
+    def overloaded_annotation(self):
+        '''this is to test overloading annotated methods'''
 
-        # Annotations
 
-        shop("parrot", "dead")
-        shop("slug", "mute")
+class MixinTestDummy(MixinTestBase, MixinTestMixin):
 
-        @classmethod
-        def __class__init__(cls, name, bases, dct):
-            cls.class_init = True
+    @mixin
+    def second_annotation(self):
+        pass
 
-        @classmethod
-        def _decorator(cls, accompaniment, old, new):
-            cls.accompaniments[accompaniment] = (old, new)
-
-        def __init__(self, name):
-            self.obj_init = True
-            self.name = name
-
-        @accompany("beans")
-        def spam(self, kind):
-            return self.name + " like " + kind + " spam"
-
-        @accompany("eggs")
-        def bacon(self, kind):
-            return self.name + " like " + kind + " bacon"
-
-    try:
-        bad_annotation_method_fail = False
-
-        class GoodDummy(annotate.Annotable):
-            '''Reference for the following test.'''
-
-            annotate.injectClassCallback("dummy", 2, "wrong_method")
-
-            @classmethod
-            def good_method(cls):
-                pass
-    except annotate.AnnotationError:
-        bad_annotation_method_fail = True
-
-    def mixin(fun):
-        annotate.injectClassCallback("mixin", 3, "_register", fun)
-        return fun
-
-    class MixinTestBase(annotate.Annotable):
-
-        values = None
-
-        @classmethod
-        def __class__init__(cls, name, bases, dct):
-            values = dict()
-            for base in [cls] + list(bases):
-                parent_values = getattr(base, "values", None)
-                if parent_values:
-                    values.update(parent_values)
-            cls.values = values
-
-        @classmethod
-        def _register(cls, value):
-            if cls.values is None:
-                cls.values = dict()
-            assert value not in cls.values, "Values are: %r" % (cls.values, )
-            cls.values[value] = cls
-
-        @mixin
-        def first_annotation(self):
-            pass
-
-    class MixinTestMixin(object):
-
-        @mixin
-        def mixin_annotation(self):
-            pass
-
-        @mixin
-        def overloaded_annotation(self):
-            '''this is to test overloading annotated methods'''
-
-    class MixinTestDummy(MixinTestBase, MixinTestMixin):
-
-        @mixin
-        def second_annotation(self):
-            pass
-
-        @mixin
-        def overloaded_annotation(self):
-            '''this is to test overloading annotated methods'''
-
-except error.SerializeCompatError as err:
-    annotate = None
-    skip_msg = str(err)
+    @mixin
+    def overloaded_annotation(self):
+        '''this is to test overloading annotated methods'''
 
 
 class TestAnnotation(object):
 
-    @pytest.fixture(autouse=True)
-    def skip_if_annotate_missing(self):
-        if annotate is None:
-            pytest.skip(skip_msg)
-
     def test_mix_in(self):
         assert (
-            MixinTestBase.values.keys() ==
-            [MixinTestBase.first_annotation.__func__]
+            set(iterkeys(MixinTestBase.values)) ==
+            set([_get_func(MixinTestBase.first_annotation)])
         )
         assert (
-            set(MixinTestDummy.values.keys()),
+            set(iterkeys(MixinTestDummy.values)) ==
             set([
-                MixinTestBase.first_annotation.__func__,
-                MixinTestDummy.second_annotation.__func__,
-                MixinTestDummy.overloaded_annotation.__func__,
-                MixinTestMixin.mixin_annotation.__func__,
-                MixinTestMixin.overloaded_annotation.__func__])
+                _get_func(MixinTestBase.first_annotation),
+                _get_func(MixinTestDummy.second_annotation),
+                _get_func(MixinTestDummy.overloaded_annotation),
+                _get_func(MixinTestMixin.mixin_annotation),
+                _get_func(MixinTestMixin.overloaded_annotation),
+            ])
         )
 
         # now check that the _register call has been done with correct cls
@@ -202,23 +200,23 @@ class TestAnnotation(object):
         assert not hasattr(MixinTestMixin, "values")
 
         def get_cls(fun):
-            return MixinTestDummy.values.get(fun)
+            return MixinTestDummy.values.get(_get_func(fun))
 
         assert (
             MixinTestBase ==
-            get_cls(MixinTestBase.first_annotation.__func__))
+            get_cls(MixinTestBase.first_annotation))
         assert (
             MixinTestDummy ==
-            get_cls(MixinTestDummy.second_annotation.__func__))
+            get_cls(MixinTestDummy.second_annotation))
         assert (
             MixinTestDummy ==
-            get_cls(MixinTestDummy.overloaded_annotation.__func__))
+            get_cls(MixinTestDummy.overloaded_annotation))
         assert (
             MixinTestDummy ==
-            get_cls(MixinTestMixin.overloaded_annotation.__func__))
+            get_cls(MixinTestMixin.overloaded_annotation))
         assert (
             MixinTestDummy ==
-            get_cls(MixinTestMixin.mixin_annotation.__func__))
+            get_cls(MixinTestMixin.mixin_annotation))
 
     def testMetaErrors(self):
         assert bad_annotation_method_fail
@@ -260,3 +258,10 @@ class TestAnnotation(object):
 
         assert "Monthy wants beans" == obj.beans()
         assert "Monthy wants eggs" == obj.eggs()
+
+
+def _get_func(f):
+    if PY3:
+        return f
+    else:
+        return f.__func__
