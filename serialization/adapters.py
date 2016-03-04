@@ -129,20 +129,6 @@ class ExceptionAdapter(BaseAdapter):
         return ex
 
 
-@adapter.register(error.SerializeError, ISerializable)
-@serialization.register
-@provider(IRestorator)
-class SerializeErrorAdapter(ExceptionAdapter):
-    """I'm cleaning up information about the traceback as we don't want it
-    to end up in journal."""
-
-    def __init__(self, exception):
-        ExceptionAdapter.__init__(self, exception)
-        if self._attrs.get('cause_traceback'):
-            self._attrs['cause_traceback'] = (
-                "Traceback information was cleanup up by FeatErrorAdapter")
-
-
 if Failure:
 
     @adapter.register(Failure, ISerializable)
