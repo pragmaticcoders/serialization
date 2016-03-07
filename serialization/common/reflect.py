@@ -22,14 +22,13 @@
 
 from __future__ import absolute_import
 
+from functools import wraps
 import inspect
 import sys
 import types
 from future.utils import PY3
 
 from zope.interface.interface import InterfaceClass
-
-from serialization.common.decorator import unicode_args
 
 
 def canonical_name(obj):
@@ -46,6 +45,28 @@ def canonical_name(obj):
         return _canonical_builtin(obj)
 
     return _canonical_type(obj.__class__)
+
+
+def unicode_args(fn):
+
+    @wraps(fn)
+    def wrapper(*orig_args, **orig_kwargs):
+        args = []
+        for a in orig_args:
+            if isinstance(a, bytes):
+                arg = a.decode()
+            else:
+                arg = a
+            args.append(arg)
+        kwargs = {}
+        for k, v in orig_kwargs.items():
+            if isinstance(v, bytes):
+                value = v.decode()
+            else:
+                value = v
+            kwargs[k] = value
+        return fn(*args, **kwargs)
+    return wrapper
 
 
 @unicode_args

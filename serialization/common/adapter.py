@@ -24,8 +24,6 @@ from __future__ import absolute_import
 
 from zope.interface import adapter, interface, declarations
 
-from serialization.common import decorator
-
 registry = adapter.AdapterRegistry()
 
 
@@ -36,10 +34,12 @@ def _lookup_adapter_hook(iface, ob):
 interface.adapter_hooks.append(_lookup_adapter_hook)
 
 
-@decorator.parametrized_class
-def register(cls, adapted, interface):
-    register_adapter(registry, cls, adapted, interface)
-    return cls
+def register(adapted, interface):
+
+    def register(cls):
+        register_adapter(registry, cls, adapted, interface)
+        return cls
+    return register
 
 
 def register_adapter(registry, adapter_factory, adapted, *interfaces):

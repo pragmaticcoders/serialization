@@ -35,7 +35,7 @@ from six import with_metaclass
 from future.utils import raise_
 from past.types import long, unicode
 
-from serialization.common import decorator, adapter, reflect, registry
+from serialization.common import adapter, reflect, registry
 from serialization.interface.serialization import ISerializable, Capabilities
 from serialization.interface.serialization import ISnapshotable, \
     IFreezer, IConverter
@@ -94,7 +94,6 @@ def freeze_tag(name):
     return decorator
 
 
-@decorator.simple_class
 def register(restorator):
     """Register a class as a L{IRestorator} in the default global registry."""
     global _global_registry
@@ -291,7 +290,6 @@ class Externalizer(object):
         return self._registry.get(identifier, None)
 
 
-@decorator.simple_function
 def referenceable(method):
     """Used in BaseSerializer and its sub-classes to flatten referenceable
     values. Hide the reference handling from sub-classes.
