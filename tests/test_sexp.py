@@ -49,7 +49,7 @@ except ImportError:
     )
 
 import serialization
-from serialization.common import reflect
+from serialization import reflect
 from serialization.interface.serialization import Capabilities
 from serialization.interface.serialization import IRestorator, ISerializable
 

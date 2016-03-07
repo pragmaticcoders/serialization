@@ -25,7 +25,7 @@ from __future__ import absolute_import
 import pytest
 
 import serialization
-from serialization.common import formatable
+from serialization import formatable
 
 
 @serialization.register

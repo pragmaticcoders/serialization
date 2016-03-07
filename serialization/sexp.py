@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from past.types import long
 from builtins import bytes
 
-from serialization.common import reflect
+from serialization import reflect
 
 from serialization import base
 

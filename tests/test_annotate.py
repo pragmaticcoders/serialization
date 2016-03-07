@@ -27,7 +27,7 @@ from __future__ import absolute_import
 from future.utils import PY3
 from six import iterkeys
 
-from serialization.common import annotate
+from serialization import annotate
 
 
 class GoodDummy(annotate.Annotable):

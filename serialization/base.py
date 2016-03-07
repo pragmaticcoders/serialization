@@ -35,7 +35,7 @@ from six import with_metaclass
 from future.utils import raise_
 from past.types import long, unicode
 
-from serialization.common import adapter, reflect, registry
+from serialization import adapter, reflect, registry
 from serialization.interface.serialization import ISerializable, Capabilities
 from serialization.interface.serialization import ISnapshotable, \
     IFreezer, IConverter

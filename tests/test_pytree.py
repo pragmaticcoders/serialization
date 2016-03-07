@@ -33,8 +33,7 @@ import pytest
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from serialization.common import reflect
-from serialization import pytree, base
+from serialization import pytree, base, reflect
 import serialization
 
 from . import utils

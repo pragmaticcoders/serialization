@@ -37,7 +37,7 @@ import pytest
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
-from serialization.common import reflect
+from serialization import reflect
 
 import serialization
 from serialization import json_ as json

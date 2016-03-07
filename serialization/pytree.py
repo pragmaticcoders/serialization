@@ -29,7 +29,7 @@ from zope.interface.interface import InterfaceClass
 
 from past.types import unicode, long
 
-from serialization.common import reflect
+from serialization import reflect
 from serialization.interface.serialization import *
 
 from serialization import base
