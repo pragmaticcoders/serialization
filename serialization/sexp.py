@@ -214,24 +214,3 @@ class Unserializer(base.Unserializer):
                   LIST_ATOM: (list, unpack_list),
                   SET_ATOM: (set, unpack_set),
                   DICT_ATOM: (dict, unpack_dict)}
-
-
-def serialize(value):
-    global _serializer
-    return _serializer.convert(value)
-
-
-def freeze(value):
-    global _serializer
-    return _serializer.freeze(value)
-
-
-def unserialize(data):
-    global _unserializer
-    return _unserializer.convert(data)
-
-
-### Private Stuff ###
-
-_serializer = Serializer()
-_unserializer = Unserializer()

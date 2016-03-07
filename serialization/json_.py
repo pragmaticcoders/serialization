@@ -315,24 +315,3 @@ class Unserializer(base.Unserializer):
                        REFERENCE_ATOM: (None, unpack_reference),
                        DEREFERENCE_ATOM: (None, unpack_dereference),
                        FUNCTION_ATOM: (None, unpack_function)}
-
-
-def serialize(value):
-    global _serializer
-    return _serializer.convert(value)
-
-
-def freeze(value):
-    global _serializer
-    return _serializer.freeze(value)
-
-
-def unserialize(data):
-    global _unserializer
-    return _unserializer.convert(data)
-
-
-### Private Stuff ###
-
-_serializer = Serializer()
-_unserializer = Unserializer()
