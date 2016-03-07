@@ -22,6 +22,7 @@
 
 from __future__ import absolute_import
 
+from six.moves import builtins
 from functools import wraps
 import inspect
 import sys
@@ -70,17 +71,6 @@ def unicode_args(fn):
 
 
 @unicode_args
-def named_function(name):
-    """Gets a fully named module-global object."""
-    name_parts = name.split('.')
-    module = named_object('.'.join(name_parts[:-1]))
-    func = getattr(module, name_parts[-1])
-    if hasattr(func, 'original_func'):
-        func = func.original_func
-    return func
-
-
-@unicode_args
 def named_module(name):
     """Returns a module given its name."""
     module = __import__(name)
@@ -112,52 +102,6 @@ def class_locals(depth, tag=None):
     return locals
 
 
-def class_canonical_name(depth):
-    frame = sys._getframe(depth)
-    module = frame.f_locals['__module__']
-    class_name = frame.f_code.co_name
-    return '.'.join([module, class_name])
-
-
-def inside_class_definition(depth):
-    frame = sys._getframe(depth)
-    locals = frame.f_locals
-    # Try to make sure we were called from a class def. In 2.2.0 we can't
-    # check for __module__ since it doesn't seem to be added to the locals
-    # until later on.  (Copied From zope.interfaces.declartion._implements)
-    if ((locals is frame.f_globals)
-        or (('__module__' not in locals)
-            and sys.version_info[:3] > (2, 2, 0))):
-        return False
-    return True
-
-
-def formatted_function_name(function):
-    if hasattr(function, 'original_func'):
-        function = function.original_func
-    argspec = inspect.getargspec(function)
-    defaults = argspec.defaults and list(argspec.defaults) or list()
-
-    if argspec.args and argspec.args[0] == 'self':
-        argspec.args.pop(0)
-    if argspec.args and argspec.args[0] == 'state':
-        argspec.args.pop(0)
-
-    args = argspec.args or list()
-    display_args = [x if len(defaults) < -index
-                    else "%s=%s" % (x, defaults[index])
-                    for x, index in zip(args, range(-len(args), 0, 1))]
-    if argspec.varargs:
-        display_args += ['*%s' % (argspec.varargs)]
-    if argspec.keywords:
-        display_args += ['**%s' % (argspec.keywords)]
-
-    text = "%s(" % (function.__name__, )
-    text += ', '.join(display_args)
-    text += ')'
-    return text
-
-
 ### Private Methods ###
 
 
@@ -176,5 +120,4 @@ def _canonical_method(obj):
 
 
 def _canonical_builtin(obj):
-    # TODO: py2 only
-    return "__builtin__." + obj.__name__
+    return builtins.__name__ + '.' + obj.__name__
