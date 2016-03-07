@@ -1,3 +1,4 @@
 future
 six
 zope.interface
+enum34

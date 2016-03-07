@@ -28,9 +28,6 @@ readme = read_file('README.rst')
 history = read_file('HISTORY.rst')
 requirements = read_requirements('requirements.txt')
 test_requirements = read_requirements('requirements_dev.txt')
-extras_require = {
-    'BANANA': ['twisted'],  # need for serialize.bannan
-}
 
 
 setup(
@@ -61,6 +58,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    test_suite='tests',
-    tests_require=test_requirements
+    tests_require=test_requirements,
 )

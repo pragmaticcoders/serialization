@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 
 import copy
+import enum
 import sys
 import types
 
@@ -34,7 +35,7 @@ from six import with_metaclass
 from future.utils import raise_
 from past.types import long, unicode
 
-from serialization.common import decorator, enum, adapter, reflect, registry
+from serialization.common import decorator, adapter, reflect, registry
 from serialization.interface.serialization import ISerializable, Capabilities
 from serialization.interface.serialization import ISnapshotable, \
     IFreezer, IConverter

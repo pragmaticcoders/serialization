@@ -126,7 +126,6 @@ class PreSerializer(base.Serializer):
         return [SET_ATOM] + data
 
     def pack_enum(self, data):
-
         return [ENUM_ATOM, reflect.canonical_name(data) + "." + data.name]
 
     def pack_type(self, data):
@@ -270,7 +269,7 @@ class Unserializer(base.Unserializer):
         parts = full_name.encode(DEFAULT_ENCODING).split(b'.')
         type_name = b".".join(parts[:-1])
         enum = self.restore_type(type_name)
-        return enum.get(parts[-1])
+        return enum[parts[-1]]
 
     def unpack_type(self, data):
         _, type_name = data

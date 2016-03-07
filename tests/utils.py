@@ -25,8 +25,10 @@
 
 from __future__ import absolute_import
 
+import enum
 import itertools
 import types
+
 
 from past.types import long, unicode
 
@@ -46,7 +48,6 @@ except:
     NotKnown = None
 
 import serialization
-from serialization.common import enum
 from serialization import base
 from serialization.interface.serialization import Capabilities, ISnapshotable
 from serialization.interface.serialization import ISerializable
@@ -870,7 +871,7 @@ def assert_equal_but_different(
     elif isinstance(value, float):
         assert round(value - expected, 7) == 0
     elif isinstance(value, (int, long, bool, str, unicode,
-                            type, InterfaceClass)):
+                            type, InterfaceClass, enum.Enum)):
         assert value == expected
     else:
         assert expected is not value

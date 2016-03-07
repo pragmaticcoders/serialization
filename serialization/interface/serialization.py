@@ -19,12 +19,12 @@
 # See "LICENSE.GPL" in the source distribution for more information.
 
 # Headers in this file shall remain intact.
-
 from __future__ import absolute_import
+
+import enum
 
 from zope.interface import Interface, Attribute
 
-from serialization.common import enum
 
 __all__ = ["IRegistry", "IRestorator",
            "ISnapshotable", "ISerializable", "IVersionAdapter",

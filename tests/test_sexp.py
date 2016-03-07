@@ -252,9 +252,9 @@ class TestSExpConverters(object):
 
             if Capabilities.enum_values in Capabilities:
                 yield (DummyEnum, [DummyEnum.a],
-                       list, [["enum", name, int(DummyEnum.a)]], False)
+                       list, [["enum", name, DummyEnum.a.name]], False)
                 yield (DummyEnum, [DummyEnum.c],
-                       list, [["enum", name, int(DummyEnum.c)]], False)
+                       list, [["enum", name, DummyEnum.c.name]], False)
 
             ### External References ###
 

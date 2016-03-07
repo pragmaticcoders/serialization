@@ -22,6 +22,8 @@
 
 from __future__ import absolute_import
 
+import enum
+
 from zope.interface.declarations import implementer
 from zope.interface.interface import InterfaceClass
 
@@ -217,7 +219,7 @@ class Unserializer(base.Unserializer):
     reference got dereferenced, so unpacking '''
 
     pass_through_types = set([str, unicode, int, long, float, bool,
-                              type(None), type, InterfaceClass])
+                              type(None), type, InterfaceClass, enum.Enum])
 
     def __init__(self, pre_converter=None, registry=None, externalizer=None,
                  source_ver=None, target_ver=None):

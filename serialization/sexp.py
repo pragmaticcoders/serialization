@@ -74,7 +74,7 @@ class Serializer(base.Serializer):
         return [NONE_ATOM]
 
     def pack_enum(self, value):
-        return [ENUM_ATOM, reflect.canonical_name(value), int(value)]
+        return [ENUM_ATOM, reflect.canonical_name(value), value.name]
 
     def pack_tuple(self, values):
         return [TUPLE_ATOM] + values
@@ -171,7 +171,7 @@ class Unserializer(base.Unserializer):
     def unpack_enum(self, data):
         _, enum_name, enum_value = data
         enum_class = self.restore_type(enum_name)
-        return enum_class.get(enum_value)
+        return enum_class[enum_value]
 
     def unpack_external(self, data):
         _, ext_id = data
