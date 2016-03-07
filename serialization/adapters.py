@@ -35,11 +35,6 @@ try:
 except ImportError:
     Failure = None
 
-try:
-    from twisted.names import dns
-except ImportError:
-    dns = None
-
 
 class AdaptedMarker(object):
     pass
@@ -163,24 +158,3 @@ if Failure:
         def __ne__(self, other):
             eq = self.__eq__(other)
             return not eq if eq is not NotImplemented else eq
-
-
-if dns:
-
-    @adapter.register(dns.Message, ISerializable)
-    @serialization.register
-    @provider(IRestorator)
-    @implementer(ISerializable)
-    class MessageAdapter(BaseAdapter, base.Serializable):
-
-        def __init__(self, msg):
-            self._msg = msg
-
-        def snapshot(self):
-            return self._msg.toStr()
-
-        @classmethod
-        def restore(cls, snapshot):
-            result = dns.Message()
-            result.fromStr(snapshot)
-            return result
