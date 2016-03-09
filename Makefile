@@ -49,15 +49,13 @@ lint:
 	flake8 serialization tests
 
 test:
-	python setup.py test
+	py.test tests
 
 test-all:
 	tox
 
 coverage:
-	coverage run --source serialization setup.py test
-	coverage report -m
-	coverage html
+	py.test tests --cov serialization --cov-report html
 	$(BROWSER) htmlcov/index.html
 
 docs:

@@ -43,6 +43,9 @@ setup(
     ],
     include_package_data=True,
     install_requires=requirements,
+    extras_require = {
+        'sexp': ['twisted<15.5'],
+    },
     license='MIT',
     zip_safe=False,
     keywords='serialization',
