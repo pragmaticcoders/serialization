@@ -46,13 +46,13 @@ setup(
     extras_require = {
         'sexp': ['twisted<15.5'],
     },
-    license='MIT',
+    license='GPL',
     zip_safe=False,
     keywords='serialization',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License (MIT)',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
         'Natural Language :: English',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
