@@ -264,10 +264,8 @@ class Unserializer(base.Unserializer):
 
     def unpack_enum(self, data):
         _, full_name = data
-        if isinstance(full_name, bytes):
-            full_name = full_name.decode(DEFAULT_ENCODING)
-        parts = full_name.encode(DEFAULT_ENCODING).split(b'.')
-        type_name = b".".join(parts[:-1])
+        parts = full_name.split('.')
+        type_name = ".".join(parts[:-1])
         enum = self.restore_type(type_name)
         return enum[parts[-1]]
 
