@@ -3,7 +3,7 @@
 History
 -------
 
-0.0.1 (2015-01-11)
+1.0.0 (2016-03-09)
 ---------------------
 * First release on PyPI.
-* Split from `https://github.com/f3at/feat`
+* Separate from `https://github.com/f3at/feat`

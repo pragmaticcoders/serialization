@@ -32,7 +32,7 @@ test_requirements = read_requirements('requirements_dev.txt')
 
 setup(
     name='serialization',
-    version='0.0.1',
+    version='1.0.0',
     description='Smart serialization library for Python language',
     long_description=readme + '\n\n' + history,
     author='Mateusz Probachta',
