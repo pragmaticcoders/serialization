@@ -35,17 +35,17 @@ setup(
     version='1.0.0',
     description='Smart serialization library for Python language',
     long_description=readme + '\n\n' + history,
-    author='Mateusz Probachta',
-    author_email='mateusz.probachta@pragmaticcoders.com',
-    url='https://github.com/pragmaticcoders/serialization',
-    packages=[
-        'serialization',
+    author='Sebastien Merle, Marek Kowalski, Mateusz Probachta',
+    author_email=[
+        's.merle@gmail.com,'
+        'kowalski0123@gmail.com,'
+        'mateusz.probachta@pragmaticcoders.com'
     ],
+    url='https://github.com/pragmaticcoders/serialization',
+    packages=['serialization'],
     include_package_data=True,
     install_requires=requirements,
-    extras_require = {
-        'sexp': ['twisted<15.5'],
-    },
+    extras_require = {'sexp': ['twisted<15.5']},
     license='GPL',
     zip_safe=False,
     keywords='serialization',
