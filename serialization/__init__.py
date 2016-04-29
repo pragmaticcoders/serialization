@@ -13,4 +13,4 @@ from serialization.base import (register, lookup,
                                 Externalizer, get_registry,
                                 freeze_tag, VersionAdapter)
 
-from serialization.interface.serialization import *
+from serialization.interface import *

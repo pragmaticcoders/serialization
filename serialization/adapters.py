@@ -24,11 +24,10 @@ from __future__ import absolute_import
 
 from zope.interface.declarations import provider, implementer
 
-from serialization import adapter
-from serialization import base
 import serialization
+from serialization import adapter, base
+from .interface import IRestorator, ISerializable
 
-from serialization.interface.serialization import IRestorator, ISerializable
 
 try:
     from twisted.python.failure import Failure

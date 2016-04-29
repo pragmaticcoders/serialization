@@ -36,12 +36,10 @@ from future.utils import raise_
 from past.types import long, unicode
 
 from serialization import adapter, reflect, registry
-from serialization.interface.serialization import ISerializable, Capabilities
-from serialization.interface.serialization import ISnapshotable, \
-    IFreezer, IConverter
-from serialization.interface.serialization import IRegistry, IExternalizer, \
-    IRestorator
-from serialization.interface.serialization import IVersionAdapter
+from serialization.interface import ISerializable, Capabilities
+from serialization.interface import ISnapshotable, IFreezer, IConverter
+from serialization.interface import IRegistry, IExternalizer, IRestorator
+from serialization.interface import IVersionAdapter
 
 
 DEFAULT_CONVERTER_CAPS = set([Capabilities.int_values,

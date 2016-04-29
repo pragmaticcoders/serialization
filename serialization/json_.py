@@ -30,8 +30,7 @@ import base64
 import json
 
 from serialization import reflect
-from serialization.interface.serialization import Capabilities
-
+from serialization.interface import Capabilities
 from serialization import base
 
 

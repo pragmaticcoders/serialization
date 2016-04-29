@@ -50,8 +50,7 @@ except ImportError:
 
 import serialization
 from serialization import reflect
-from serialization.interface.serialization import Capabilities
-from serialization.interface.serialization import IRestorator, ISerializable
+from serialization.interface import IRestorator, ISerializable, Capabilities
 
 from . import utils
 

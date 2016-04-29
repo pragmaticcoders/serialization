@@ -49,8 +49,7 @@ except:
 
 import serialization
 from serialization import base
-from serialization.interface.serialization import Capabilities, ISnapshotable
-from serialization.interface.serialization import ISerializable
+from serialization.interface import Capabilities, ISnapshotable, ISerializable
 
 
 def qual(clazz):
