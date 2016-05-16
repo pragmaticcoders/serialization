@@ -140,7 +140,7 @@ class IVersionAdapter(Interface):
         """Called by unserializer to inform the object that it's snanshot
         has been migrated"""
 
-    def store_version(snapshot, version):
+    def store_version(snapshot, version, version_atom):
         """Store the final version into the snapshot."""
 
     has_migrated = Attribute('C{bool} flag saying that the object has been'

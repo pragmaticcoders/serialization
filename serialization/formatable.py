@@ -138,3 +138,19 @@ class Formatable(with_metaclass(
             else:
                 value = copy.copy(field.default)
             setattr(self, field.name, value)
+
+
+class MetaVersionedFormatable(
+        type(Formatable), type(serialization.VersionAdapter)):
+    pass
+
+
+class VersionedFormatable(
+        with_metaclass(
+            MetaVersionedFormatable, Formatable, serialization.VersionAdapter)):
+
+    version = 1
+
+    def store_version(self, snapshot, version, version_atom):
+        snapshot[version_atom] = version
+        return snapshot

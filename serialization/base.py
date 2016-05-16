@@ -182,8 +182,8 @@ class VersionAdapter(with_metaclass(MetaVersionAdapter, object)):
         return snapshot
 
     @classmethod
-    def store_version(cls, snapshot, version):
-        snapshot['.version'] = version
+    def store_version(cls, snapshot, version, version_atom):
+        snapshot[version_atom] = version
         return snapshot
 
 
@@ -390,7 +390,7 @@ class Serializer(object):
 
     def __init__(self, converter_caps=None, freezer_caps=None,
                  post_converter=None, externalizer=None, registry=None,
-                 source_ver=None, target_ver=None):
+                 source_ver=None, target_ver=None, version_atom='.version'):
         global _global_registry
         assert ((source_ver is None) and (target_ver is None)) \
             or ((source_ver is not None) and (target_ver is not None))
@@ -401,6 +401,7 @@ class Serializer(object):
         self._registry = IRegistry(registry) if registry else _global_registry
         self._source_ver = source_ver
         self._target_ver = target_ver
+        self._version_atom = version_atom
         self.reset()
 
     ### IFreezer ###
@@ -696,7 +697,7 @@ class Serializer(object):
             if target is not None:
                 if target != source:
                     snapshot = value.adapt_version(snapshot, source, target)
-                value.store_version(snapshot, target)
+                value.store_version(snapshot, target, self._version_atom)
 
         dump = self.flatten_value(snapshot, caps, freezing)
 
