@@ -1,4 +1,4 @@
 future
 six
 zope.interface
-enum34
+enum-compat == 0.0.3
